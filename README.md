@@ -19,8 +19,8 @@ Mit dabei sind:
 ## Fortschritt
 
 - [x] Flex benutzt
-- [] Bison benutzt
-- [] Wat produktives gemacht...
+- [ ] Bison benutzt
+- [ ] Wat produktives gemacht...
 
 ## FAQ
 
