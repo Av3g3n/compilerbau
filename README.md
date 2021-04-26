@@ -23,10 +23,10 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
     - Parser-Quelltext/Syntax Analysierer, wie yyparse: `example.tab.c`
 
 2. `flex example.lex`  --> erstellt:
-        - Lexikalischer Analysierer: `lex.yy.c`
+     - Lexikalischer Analysierer: `lex.yy.c`
        
 3. `cc example.tab.c lex.yy.c -o myexe` --> erstellt:
-        - Ausführbare Kompilierer: `myexe`
+      - Ausführbare Kompilierer: `myexe`
 
 ### Aktuell erlernte Angriffe
 Das Schwert ist in der Lage verschiedene Mathematische Angriffe auf Integerzahlen durchzuführen, hierzu gehören die Grundoperationen wie:
