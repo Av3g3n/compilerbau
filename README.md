@@ -12,15 +12,36 @@ Mit dabei sind:
 
 > Nur mit Muskeln kommt man halt nicht weiter nh
 
-1. Ihr schreibt euch ein **FILENAME.lex**
-2. Im Terminal gebt ihr `./build.sh FILENAME.lex` ein
-3. Nun könnt ihr im Terminal `./myexe` ausführen und gebt händisch irgendnen Müll ein oder ihr nehmt den super vorkonfigurierten Scheißbatzen mittels `./myexe < dummy`
+Die guten Angriffe  werden mit ` FIN=example FOUT=myexe make` ausgeführt. Nun sollte ein handlebares Schwert `myexe` für euch zum Kampf bereitgestellt worden sein. Aktiviert es mit `./myexe` und führt unten gelistete Angriffe aus.
+Haltet euch mit `FIN=example FOUT=myexe make clean` den Rücken für weitere neue Schwertgriffe frei.
 
+## Wie funktioniert das Schwert von Innen
+Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
+
+1. `bison -d example.y` --> erstellt:
+    - Headerfile: `example.tab.h`
+    - Parser-Quelltext/Syntax Analysierer, wie yyparse: `example.tab.c`
+
+2. `flex example.lex`  --> erstellt:
+        - Lexikalischer Analysierer: `lex.yy.c`
+       
+3. `cc example.tab.c lex.yy.c -o myexe` --> erstellt:
+        - Ausführbare Kompilierer: `myexe`
+
+### Aktuell erlernte Angriffe
+Das Schwert ist in der Lage verschiedene Mathematische Angriffe auf Integerzahlen durchzuführen, hierzu gehören die Grundoperationen wie:
+- Addition(+)
+- Subtraktion(-)
+- Multiplikation(*)
+- Division(/)
+
+Die Wirksamkeit des Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
 
 - [x] Flex benutzt
-- [ ] Bison benutzt
-- [ ] Wat produktives gemacht...
+- [x] Bison benutzt
+- [ ] Full Integration of the Jugend
+- [ ] Wat Produktives gemacht...
 
 ## FAQ
 
