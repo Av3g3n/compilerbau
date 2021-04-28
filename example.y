@@ -6,6 +6,7 @@
 %{
 /* C - Declarations */ 
 #include <stdio.h>
+#include <stdlib.h>
 void yyerror(char *);
 int yylex(void);
 int sym[26];
@@ -38,7 +39,7 @@ expr:
 /* C-Definitons/C-Routinen + Subroutinen */ 
 void yyerror(char *s){
    fprintf(stderr, "%s\n", s);
-   return 0;
+	exit(1);
 }
 int main(void){
    yyparse();
