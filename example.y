@@ -9,7 +9,7 @@
 #include <stdlib.h>
 void yyerror(char *);
 int yylex(void);
-int sym[26];
+int sym[50];
 %}
 
 %%
@@ -28,6 +28,7 @@ statement:
 expr:
 		INTEGER
 		| VARIABLE				   { $$ = sym[$1]; }
+		| '-' expr					{ $$ = -$2; }
 		| expr '+' expr			{ $$ = $1 + $3;}
 		| expr '-' expr			{ $$ = $1 - $3;}
 		| expr '*' expr			{ $$ = $1 * $3;}

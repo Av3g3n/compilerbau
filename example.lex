@@ -27,7 +27,7 @@ void yyerror(char *);
 	/* ----------------------------- */
 	/* EXPLANATION PLEASE */
 
-({number}|-{number_neg})				{
+{number}										{
 													yylval = atoi(yytext);
 													return INTEGER;
 												}
