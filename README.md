@@ -15,7 +15,7 @@ Mit dabei sind:
 Die guten Angriffe  werden mit ` FIN=example FOUT=myexe make` ausgeführt. Nun sollte ein handlebares Schwert `myexe` für euch zum Kampf bereitgestellt worden sein. Aktiviert es mit `./myexe` und führt unten gelistete Angriffe aus.
 Haltet euch mit `FIN=example FOUT=myexe make clean` den Rücken für weitere neue Schwertgriffe frei.
 
-## Wie funktioniert das Schwert von Innen
+## Wie benutzt man den Amboss zum Schmieden des Schwertes
 Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 
 1. `bison -d example.y` --> erstellt:
@@ -28,7 +28,7 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 3. `cc example.tab.c lex.yy.c -o myexe` --> erstellt:
       - Ausführbare Kompilierer: `myexe`
 
-### Aktuell erlernte Angriffe
+## Aktuell erlernte Angriffe
 Das Schwert ist in der Lage verschiedene Mathematische Angriffe auf Integerzahlen durchzuführen, hierzu gehören die Grundoperationen wie:
 - Addition(+)
 - Subtraktion(-)

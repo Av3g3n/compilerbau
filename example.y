@@ -1,13 +1,19 @@
+/* Definitions Section */
 %token INTEGER VARIABLE
 %left '+' '-'
 %left '*' '/'
+
 %{
+/* C - Declarations */ 
 #include <stdio.h>
 void yyerror(char *);
 int yylex(void);
 int sym[26];
 %}
+
 %%
+/* Rules Section - where the magic happens */
+/* Grammatik und Aktionen */ 
 program:
 		program statement '\n'
 		|
@@ -27,7 +33,9 @@ expr:
 		| expr '/' expr			{ $$ = $1 / $3;}
 		| '(' expr ')'			   { $$ = $2;}
 		;
+
 %%
+/* C-Definitons/C-Routinen + Subroutinen */ 
 void yyerror(char *s){
    fprintf(stderr, "%s\n", s);
    return 0;

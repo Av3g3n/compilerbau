@@ -1,11 +1,13 @@
-%{
+%{ 
+/* C-Deklarationen - werden direkt kopiert */
 #include <stdlib.h>
 #include "example.tab.h"
 void yyerror(char *);
 %}
 %%
 	/* variables */
-[a-z]+				{
+    /* regex         zugehörige Aktion / C-Anweisung */
+[a-z]+				{   
 						yylval = *yytext - 'a';
 						return VARIABLE;
 					}
@@ -21,6 +23,7 @@ void yyerror(char *);
 	/* anything else is an error */
 .						yyerror("invalid character");
 %%
+/* Definitonen von Datenstrukturen und Funktionen die in Scanner kopiert werden*/
 int yywrap(void){
 	return 1;
 }
