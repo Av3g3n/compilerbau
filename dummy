@@ -1,8 +1,0 @@
-// Test file for Compiler
-
-v = 50
-x = 10
-z = v*x
-z
-a = (v < x)
-a
