@@ -1,8 +1,9 @@
 FILEPREFIX=$(FIN)
 OUTPUTFILE=$(FOUT)
+MODE=$(FMODE)
 
-myexe: $(FILEPREFIX).tab.c lex.yy.c
-	cc $(FILEPREFIX).tab.c lex.yy.c -o $(OUTPUTFILE)
+executable: $(FILEPREFIX).tab.c lex.yy.c $(MODE).c
+	cc $(FILEPREFIX).tab.c lex.yy.c $(MODE).c -o $(OUTPUTFILE)
 
 $(FILEPREFIX).tab.c $(FILEPREFIX).tab.h: $(FILEPREFIX).y
 	bison -d $(FILEPREFIX).y
