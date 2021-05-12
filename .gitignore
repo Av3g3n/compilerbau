@@ -1,4 +1,5 @@
-*.h
-*.c
+example.tab.h
+example.tab.c
+lex.yy.c
 myexe
 executable
