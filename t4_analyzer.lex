@@ -10,7 +10,8 @@ print			(H|h)(A|a)(U|u)_(R|r)(A|a)(U|u)(S|s)
 %{ 
 #include <stdlib.h>
 #include <string.h>
-#include "example.tab.h"
+#include "t4_parser_gen.tab.h"
+#include "t4_header.h"
 void yyerror(char *);
 int line_number = 1;
 %}
@@ -32,22 +33,25 @@ int line_number = 1;
 	/* ----- V A R I A B L E S ----- */
 
 ({letter}|_)({letter}|{digit}|_)*	{
+													debug("(l.%d) Variable detected: %s\n", line_number, yytext);
 													yylval._str = yytext;
-													printf("Variable detected: %s\n", yytext);
 													return VARIABLE;
 												}
 
 	/* -------- V A L U E S -------- */
 
 {number}										{
+													debug("(l.%d) Integer detected: %d\n", line_number, atoi(yytext));
 													yylval._int = atoi(yytext);
-													printf("Integer detected: %d\n", atoi(yytext));
 													return INTEGER;
 												}
 
 	/* ------ O P E R A N D S ------ */
 
-[-+()=<>/*]									return *yytext;
+[-+()=<>/*^]								{
+													debug("(l.%d) Operand detected: %c\n", line_number, yytext);
+													return *yytext;
+												}
 
 	/* --- W H I T E S P A C E S --- */
 
@@ -56,20 +60,23 @@ int line_number = 1;
 	/* ------- N E W L I N E ------- */
 
 \n 											{
+													debug("(l.%d) Newline detected\n", line_number);
 													line_number++;
-													printf("Newline detected\n");
 													return *yytext;
 												}
 
 	/* ------ C O M M E N T S ------ */
 
-\/\/.*										printf("Comment detected\n"); return COMMENT;
+\/\/.*										{
+													debug("(l.%d) Comment detected\n", line_number);
+													return COMMENT;
+												}
 
 	/* -------- E R R O R S -------- */
 	/* any input, which is not matched, is identified as an error */
 
 .												{
-													char error_msg[] = "not recognized input, see line:";
+													char error_msg[] = "Not recognized input, see line: ";
 													char tmp[10];
 													snprintf(tmp,10,"%d", line_number);
 													strncat(error_msg,tmp,strlen(tmp));

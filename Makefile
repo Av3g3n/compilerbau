@@ -1,15 +1,16 @@
-FILEPREFIX=$(FIN)
-OUTPUTFILE=$(FOUT)
+FLEXFILE=t4_analyzer
+BISONFILE=t4_parser_gen
+OUTPUTFILE=t4compiler
 MODE=$(FMODE)
 
-executable: $(FILEPREFIX).tab.c lex.yy.c $(MODE).c
-	cc $(FILEPREFIX).tab.c lex.yy.c $(MODE).c -o $(OUTPUTFILE)
+t4compiler: $(BISONFILE).tab.c lex.yy.c t4_$(MODE).c
+	cc $(BISONFILE).tab.c lex.yy.c t4_$(MODE).c -o $(OUTPUTFILE) -lm
 
-$(FILEPREFIX).tab.c $(FILEPREFIX).tab.h: $(FILEPREFIX).y
-	bison -d $(FILEPREFIX).y
+$(BISONFILE).tab.c $(BISONFILE).tab.h: $(BISONFILE).y
+	bison -d $(BISONFILE).y
 
-lex.yy.c: $(FILEPREFIX).lex
-	flex $(FILEPREFIX).lex
+lex.yy.c: $(FLEXFILE).lex
+	flex $(FLEXFILE).lex
 
 clean:
-	rm $(FILEPREFIX).tab.h $(FILEPREFIX).tab.c lex.yy.c $(OUTPUTFILE)
+	rm $(BISONFILE).tab.h $(BISONFILE).tab.c lex.yy.c $(OUTPUTFILE)

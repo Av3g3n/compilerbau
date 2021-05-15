@@ -1,3 +1,6 @@
+#ifndef T4_HEADER_H
+#define T4_HEADER_H
+
 /* binary search tree for variable identifiers */
    // https://www.geeksforgeeks.org/binary-tree-to-binary-search-tree-conversion/?ref=rp
 
@@ -15,8 +18,20 @@ Dict* dict_next(Dict*);
 int dict_getValue(char*);
 void dict_add(int, char*);
 
+extern int DEBUG;
+int debug(const char*, ...);
+
 /* node structure */
    // https://stackoverflow.com/questions/1675351/typedef-struct-vs-struct-definitions
+
+/* Font Colors */
+void colorize_err_out();
+void reset_err_color();
+
+/* Wrapper around error for red font */
+void error_with_color(char*);
+
+void print_help();
 
 /* function with n parameters and m are defined --> function(int n, ...) */
    // https://manderc.com/types/ellipsisparameter/index.php
@@ -49,3 +64,5 @@ typedef struct NodeTypeTag {
       OprNodeType opr;
    };
 } NodeType;
+
+#endif

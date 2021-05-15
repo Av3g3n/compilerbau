@@ -1,5 +1,4 @@
-example.tab.h
-example.tab.c
+t4_parser_gen.tab.h
+t4_parser_gen.tab.c
 lex.yy.c
-myexe
-executable
+t4compiler

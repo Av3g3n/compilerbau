@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "customHeader.h"
-#include "example.tab.h"
+#include <math.h>
+#include "t4_header.h"
+#include "t4_parser_gen.tab.h"
 int ex(NodeType *p) {
    if (!p) return 0;
    switch(p->type) {
@@ -29,6 +30,7 @@ int ex(NodeType *p) {
          case '/':      return ex(p->opr.op[0]) / ex(p->opr.op[1]);
          case '<':      return ex(p->opr.op[0]) < ex(p->opr.op[1]);
          case '>':      return ex(p->opr.op[0]) > ex(p->opr.op[1]);
+         case '^':      return pow(ex(p->opr.op[0]), ex(p->opr.op[1]));
          case GE:       return ex(p->opr.op[0]) >= ex(p->opr.op[1]);
          case LE:       return ex(p->opr.op[0]) <= ex(p->opr.op[1]);
          case NE:       return ex(p->opr.op[0]) != ex(p->opr.op[1]);
