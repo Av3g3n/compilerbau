@@ -7,7 +7,7 @@ t4compiler: $(BISONFILE).tab.c lex.yy.c t4_$(MODE).c
 	cc $(BISONFILE).tab.c lex.yy.c t4_$(MODE).c -o $(OUTPUTFILE) -lm
 
 $(BISONFILE).tab.c $(BISONFILE).tab.h: $(BISONFILE).y
-	bison -d $(BISONFILE).y
+	bison -d -v $(BISONFILE).y
 
 lex.yy.c: $(FLEXFILE).lex
 	flex $(FLEXFILE).lex

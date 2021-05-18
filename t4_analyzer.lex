@@ -32,9 +32,15 @@ int line_number = 1;
 
 	/* ----- V A R I A B L E S ----- */
 
+	/* TODO: just allow variables with underscore with following form: */
+	/* _X  */
+	/* __X */ 
+	/* X_  */
+	/* X_X */
+
 ({letter}|_)({letter}|{digit}|_)*	{
-													debug("(l.%d) Variable detected: %s\n", line_number, yytext);
-													yylval._str = yytext;
+													debug("(l.%d) Variable detected: \"%s\", Length is: %d\n", line_number, yytext, yyleng);
+													yylval.var_val = strdup(yytext);
 													return VARIABLE;
 												}
 
@@ -42,15 +48,16 @@ int line_number = 1;
 
 {number}										{
 													debug("(l.%d) Integer detected: %d\n", line_number, atoi(yytext));
-													yylval._int = atoi(yytext);
+													yylval.int_val = atoi(yytext);
 													return INTEGER;
 												}
 
 	/* ------ O P E R A N D S ------ */
 
-[-+()=<>/*^]								{
-													debug("(l.%d) Operand detected: %c\n", line_number, yytext);
-													return *yytext;
+[-+()=<>?:/*^]								{
+													debug("(l.%d) Operand detected: %c\n", line_number, *yytext);
+													char tmp = *yytext;
+													return tmp;
 												}
 
 	/* --- W H I T E S P A C E S --- */
@@ -62,7 +69,7 @@ int line_number = 1;
 \n 											{
 													debug("(l.%d) Newline detected\n", line_number);
 													line_number++;
-													return *yytext;
+													return '\n';
 												}
 
 	/* ------ C O M M E N T S ------ */
@@ -76,11 +83,10 @@ int line_number = 1;
 	/* any input, which is not matched, is identified as an error */
 
 .												{
-													char error_msg[] = "Not recognized input, see line: ";
-													char tmp[10];
-													snprintf(tmp,10,"%d", line_number);
-													strncat(error_msg,tmp,strlen(tmp));
-													yyerror(error_msg);
+													colorize_err_out();
+   												fprintf(stderr, "Invalid character at line: %d\n", line_number);
+													reset_err_color();
+													// return TRASH;
 												}
 
 %%

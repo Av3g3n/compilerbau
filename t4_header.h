@@ -1,9 +1,7 @@
 #ifndef T4_HEADER_H
 #define T4_HEADER_H
 
-/* binary search tree for variable identifiers */
-   // https://www.geeksforgeeks.org/binary-tree-to-binary-search-tree-conversion/?ref=rp
-
+/* D I C T I O N A R Y */ 
 // union for difference between int or string for later
 typedef struct Dict {
    int value;
@@ -15,54 +13,53 @@ extern Dict* head;
 extern Dict* tail;
 
 Dict* dict_next(Dict*);
-int dict_getValue(char*);
+int dict_getValue(const char* restricted);
 void dict_add(int, char*);
+Dict* dict_keyExists(const char* restricted);
 
+/* D E B U G  M O D E */
 extern int DEBUG;
 int debug(const char*, ...);
 
-/* node structure */
-   // https://stackoverflow.com/questions/1675351/typedef-struct-vs-struct-definitions
-
-/* Font Colors */
+/* E R R O R  C O L O R */
 void colorize_err_out();
 void reset_err_color();
 
-/* Wrapper around error for red font */
-void error_with_color(char*);
-
+/* H E L P  M E S S A G E */
 void print_help();
 
-/* function with n parameters and m are defined --> function(int n, ...) */
-   // https://manderc.com/types/ellipsisparameter/index.php
-
+/* S T R U C T U R E S  F O R  G R A M M A R  R U L E S */
 typedef enum {
-   typeCon,
-   typeId,
-   typeOpr
+   type_constant,
+   type_variable,
+   type_operand
 } NodeEnum;
 
 typedef struct {
    int value;
-} ConNodeType;
+} ConstantNode;
 
 typedef struct {
    char* str;
-} IdNodeType;
+} VariableNode;
 
 typedef struct {
    int oper;
    int nops;
    struct NodeTypeTag *op[1];
-} OprNodeType;
+} OperandNode;
 
 typedef struct NodeTypeTag {
    NodeEnum type;
    union {
-      ConNodeType con;
-      IdNodeType id;
-      OprNodeType opr;
+      ConstantNode con;
+      VariableNode var;
+      OperandNode opr;
    };
 } NodeType;
+
+/* T E M P O R A R Y  F U N C T I O N S ? */
+int trim_char(char* restrict, const char* restrict, const char);
+int copy_until_char(char* restrict, const char* restrict, const char);
 
 #endif

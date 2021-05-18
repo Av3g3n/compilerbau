@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "t4_header.h"
 NodeType *opr(int oper, int nops, ...);
-NodeType *id(char* str);
+NodeType *var(char* str);
 NodeType *con(int value);
 void freeNode(NodeType *p);
 int ex(NodeType *p);
@@ -17,24 +17,28 @@ Dict* tail = NULL;
 int DEBUG = 0;
 %}
 
+// %define parse.error verbose
+
 %union {
-	int _int;
-	char* _str;
-	struct NodeTypeTag* ptr;
+	int int_val;
+	char* var_val;
+	struct NodeTypeTag* node_ptr;
 }
 
-%token <_int> INTEGER
-%token <_str> VARIABLE
+%start program
+%token <int_val> INTEGER
+%token <var_val> VARIABLE
 %token IF ELSE COMMENT PRINT WHILE AND OR CONST
 %nonassoc IFX
 %nonassoc ELSE
-// %precedence '=' // for something like print(x=2);
+%precedence '='
 %left GE LE EQ NE '<' '>'
+%left AND OR
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
 %right '^'
-%type <ptr> statement expression
+%type <node_ptr> statement expression condition cond_list
 
 %%
 program:
@@ -45,50 +49,72 @@ program:
 
 statement:
 		expression					    								{ $$ = $1; }
-		| VARIABLE '=' expression									{ printf("Variable content inside grammar: %s\n", $1); $$ = opr('=', 2, id($1), $3); }
-		| PRINT expression comment									{ $$ = opr(PRINT, 1, $2); }
-		| WHILE '('  expression ')' statement					{ $$ = opr(WHILE, 2, $3, $5); }
-		| IF '(' expression ')' statement %prec IFX			{ $$ = opr(IF, 2, $3, $5); }
-		| IF '(' expression ')' statement ELSE statement	{ $$ = opr(IF, 2, $3, $5, $7); }
-		// const missing
+		| '(' condition ')'											{ $$ = $2; }
+		| VARIABLE '=' expression									{
+																				// TODO
+																				// colorize_err_out(); 
+																				// fprintf(stderr, "Variable content inside grammar: %s\n", $1);
+																				// reset_err_color();
+																				// char* tmp = malloc(strlen($1)+1);
+																				// trim_char(tmp, $1, ' ');
+																				// char* var1 = malloc(strlen(tmp)+1);
+																				// copy_until_char(var1, tmp, '=');
+																				// debug("final variable is: \"%s\"\n", var1);
+																				$$ = opr('=', 2, var($1), $3);
+																			}
+		| PRINT expression											{ $$ = opr(PRINT, 1, $2); }
+		| WHILE '(' condition ')' ':' statement				{ $$ = opr(WHILE, 2, $3, $6); }
+		| IF '(' condition ')' statement %prec IFX			{ $$ = opr(IF, 2, $3, $5); }
+		| IF '(' condition ')' statement ELSE statement		{ $$ = opr(IF, 2, $3, $5, $7); }
+		//| CONST VARIABLE '=' expression							{ ; } //TODO
 		;
 
-expression:
-		INTEGER															{ $$ = con($1);}
-		| VARIABLE				   									{ $$ = id($1); }
-		| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
-		| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
-		| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
-		| expression '*' expression								{ $$ = opr('*', 2, $1, $3); }
-		| expression '/' expression								{ 
-																				if($3) $$ = opr('/', 2, $1, $3);
-																				else {
-																					$$->con.value = 1;
-																					fprintf(stderr, "%d.%d-%d.%d: division by zero",
-																								@3.first_line, @3.first_column,
-																								@3.last_line, @3.last_column);
-																				} 
-																			}
-		| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
-		| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
-		| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
+condition:
+		'(' cond_list ')'												{ $$ = $2; }
 		| expression GE expression									{ $$ = opr(GE, 2, $1, $3); }
 		| expression LE expression									{ $$ = opr(LE, 2, $1, $3); }
 		| expression EQ expression									{ $$ = opr(EQ, 2, $1, $3); }
 		| expression NE expression									{ $$ = opr(NE, 2, $1, $3); }
+		| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
+		| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
+
+cond_list:
+		condition AND condition										{ $$ = opr(AND, 2, $1, $3); }
+		| condition OR condition									{ $$ = opr(OR, 2, $1, $3); }
+
+expression:
+		INTEGER															{ debug("EXPR -> INTEGER content: %d\n", $1); $$ = con($1);}
+		| VARIABLE				   									{ debug("EXPR -> VARIABLE content: \"%s\"\n", $1); $$ = var($1); }
+		| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
+		| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
+		| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
+		| expression '*' expression								{ $$ = opr('*', 2, $1, $3); }
+		| expression '/' expression								{ // TODO
+																				if($3->con.value){
+																					$$ = opr('/', 2, $1, $3);
+																				} else {
+																					colorize_err_out();
+																					fprintf(stderr, "%d.%d-%d.%d: division by zero\n",
+																								@3.first_line, @3.first_column,
+																								@3.last_line, @3.last_column);
+																					reset_err_color();
+																				} 
+																			}
+		| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
 		| '(' expression ')'			   							{ $$ = $2;}
 		;
 
 comment:
-		COMMENT															{ printf("Real Comment\n"); }
-		|																	{ printf("Empty Comment for grammar\n"); }
+		COMMENT															{ debug("comment\n"); }
+		|																	{ debug("empty comment rule\n"); }
 		;
 
 %%
 Dict* dict_next(Dict* ptr){
    return ptr->next;
 }
-int dict_getValue(char* str){
+
+int dict_getValue(const char* restrict str){
    Dict* current = head;
    while(current != NULL){
       if(strcmp(current->key, str) == 0){
@@ -98,7 +124,13 @@ int dict_getValue(char* str){
       }
    }
 }
+
 void dict_add(int val, char* str){
+	Dict* tmp = dict_keyExists(str);
+	if(tmp != NULL) {
+		tmp->value = val;
+		return;
+	}
    Dict* dict = (Dict*)malloc(sizeof(Dict));
    dict->value = val;
    dict->key = str;
@@ -112,23 +144,36 @@ void dict_add(int val, char* str){
    }
 }
 
+Dict* dict_keyExists(const char* restrict str){
+	Dict* current = head;
+   while(current != NULL){
+      if(strcmp(current->key, str) == 0){
+			return current;
+      } else {
+         current = dict_next(current);
+      }
+   }
+	Dict* tmp = NULL;
+	return tmp;
+}
+
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
 NodeType *con(int value) {
-	printf("function \"con\" parameter: %d\n", value); //DEBUG
+	debug("Function \"con\" parameter: %d\n", value);
    NodeType *p;
    if ((p = malloc(sizeof(NodeType))) == NULL)
       yyerror("out of memory");
-   p->type = typeCon;
+   p->type = type_constant;
    p->con.value = value;
    return p;
 }
-NodeType *id(char* str) {
-	printf("function \"id\" parameter: %s\n", str); //DEBUG
+NodeType *var(char* str) {
+	debug("Function \"var\" parameter: %s\n", str);
    NodeType *p;
    if ((p = malloc(sizeof(NodeType))) == NULL)
       yyerror("out of memory");
-   p->type = typeId;
-   p->id.str = str;
+   p->type = type_variable;
+   p->var.str = str;
    return p;
 }
 NodeType *opr(int oper, int nops, ...) {
@@ -137,7 +182,7 @@ NodeType *opr(int oper, int nops, ...) {
    int i;
    if ((p = malloc(sizeof(NodeType) + (nops-1) * sizeof(NodeType *))) == NULL)
       yyerror("out of memory");
-   p->type = typeOpr;
+   p->type = type_operand;
    p->opr.oper = oper;
    p->opr.nops = nops;
    va_start(ap, nops);
@@ -149,7 +194,7 @@ NodeType *opr(int oper, int nops, ...) {
 void freeNode(NodeType *p) {
    int i;
    if (!p) return;
-   if (p->type == typeOpr) {
+   if (p->type == type_operand) {
       for (i = 0; i < p->opr.nops; i++)
          freeNode(p->opr.op[i]);
    }
@@ -160,7 +205,6 @@ void yyerror(char *s){
 	colorize_err_out();
    fprintf(stderr, "%s\n", s);
 	reset_err_color();
-	exit(1);
 }
 
 int debug(const char* str, ...){
@@ -184,11 +228,40 @@ void reset_err_color(){
 }
 
 void print_help(){
-	char flag_d[] = "\t-d --> activates debug messages\n";
+	char flag_v[] = "\t-v --> activates verbose messages\n";
 	char flag_f[] = "\t-f FILE --> file to read from\n";
 	char flag_h[] = "\t-h --> print help message\n";
-	printf("t4compiler [OPTIONS]\nOPTIIONS:\n%s%s%s", flag_d, flag_f, flag_h);
+	printf("t4compiler [OPTIONS]\nOPTIIONS:\n%s%s%s", flag_v, flag_f, flag_h);
 }
+
+// TEMPORARY FUNCTIONS
+int trim_char(char* restrict str_trim, const char* restrict str_untrim, const char c){
+   while(*str_untrim != '\0'){
+      if(*str_untrim != c){
+         *str_trim = *str_untrim;
+         str_trim++;
+      }
+      str_untrim++;
+   }
+   *str_trim = '\0';
+   return 0;
+}
+
+int copy_until_char(char* restrict copy, const char* restrict orig, const char c){
+   while(*orig != '\0'){
+      if(*orig != c){
+         *copy = *orig;
+      	copy++;
+         orig++;
+		}
+      else {
+         break;
+      }
+   }
+   *copy = '\0';
+   return 0;
+}
+
 
 int main(int argc, char const* argv[]){
    if(argc == 1){

@@ -2,3 +2,4 @@ t4_parser_gen.tab.h
 t4_parser_gen.tab.c
 lex.yy.c
 t4compiler
+t4_parser_gen.output
