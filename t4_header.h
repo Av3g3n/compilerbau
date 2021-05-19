@@ -59,6 +59,8 @@ typedef struct NodeTypeTag {
 } NodeType;
 
 /* T E M P O R A R Y  F U N C T I O N S ? */
+void prompt_in();
+void prompt_out();
 int trim_char(char* restrict, const char* restrict, const char);
 int copy_until_char(char* restrict, const char* restrict, const char);
 

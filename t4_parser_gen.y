@@ -63,7 +63,7 @@ statement:
 		;
 
 stmt_list:
-		'\t' statement stmt_list								{ debug("Grammar:\n\tstmt_list statement\n"); $$ = opr('\n', 2, $2, $3); }
+		'\t' statement stmt_list								{ debug("Grammar:\n\t'\\t' statement stmt_list\n"); $$ = opr('\n', 2, $2, $3); }
 		| statement													{$$ = $1; }
 		;
 
@@ -258,6 +258,13 @@ int copy_until_char(char* restrict copy, const char* restrict orig, const char c
    return 0;
 }
 
+void prompt_in(){
+	printf(">>> ");
+}
+
+void prompt_out(){
+	printf("<<< ");
+}
 
 int main(int argc, char const* argv[]){
    if(argc == 1){
