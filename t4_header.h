@@ -47,14 +47,14 @@ typedef struct {
    int oper;
    int nops;
    struct NodeTypeTag *op[1];
-} OperandNode;
+} OperatorNode;
 
 typedef struct NodeTypeTag {
    NodeEnum type;
    union {
       ConstantNode con;
       VariableNode var;
-      OperandNode opr;
+      OperatorNode opr;
    };
 } NodeType;
 

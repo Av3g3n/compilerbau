@@ -9,11 +9,8 @@ int ex(NodeType *p) {
    switch(p->type) {
       case type_constant:     return p->con.value;
       case type_variable:     {
-                                 // TODO
-                                 // debug("Input to type_variable: \"%s\"\n", p->var.str);
-                                 // char* var = malloc(strlen(p->var.str)+1);
-                                 // trim_char(var, p->var.str, '\n');
-                                 return dict_getValue(p->var.str); /*return dict_getValue(p->id.str);*/
+                                 debug("RETURN VARIABLE VALUE: \"%s\"\n", p->var.str);
+                                 return dict_getValue(p->var.str);
                               }
       case type_operand:
       switch(p->opr.oper) {
@@ -28,6 +25,7 @@ int ex(NodeType *p) {
          case PRINT:          printf("%d\n", ex(p->opr.op[0]));
                               return 0;
          case '\n':           /* WORKS? */
+                              debug("Section \"\\n\"\n\tNode1: \"%d\"\n\tNode2: \"%d\"\n", ex(p->opr.op[0]), ex(p->opr.op[1]));
                               ex(p->opr.op[0]); return ex(p->opr.op[1]);
          case '=':            debug("Section \"=\"\vVariable: \"%s\"\vValue: \"%d\"\n", p->opr.op[0]->var.str, ex(p->opr.op[1]));
                               dict_add(ex(p->opr.op[1]), p->opr.op[0]->var.str);
@@ -45,7 +43,8 @@ int ex(NodeType *p) {
          case LE:             return ex(p->opr.op[0]) <= ex(p->opr.op[1]);
          case NE:             return ex(p->opr.op[0]) != ex(p->opr.op[1]);
          case EQ:             return ex(p->opr.op[0]) == ex(p->opr.op[1]);
-      }
+         case AND:            return ex(p->opr.op[0]) && ex(p->opr.op[1]);
+         case OR:             return ex(p->opr.op[0]) || ex(p->opr.op[1]);      }
    }
    return 0;
 }

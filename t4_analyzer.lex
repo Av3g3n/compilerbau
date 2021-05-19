@@ -18,17 +18,17 @@ int line_number = 1;
 
 %%
 
-{if}		return IF;
-{else}	return ELSE;
-{while}	return WHILE;
-{const}	return CONST;
-{print}	return PRINT;
-\>=		return GE;
-\<=		return LE;
-==			return EQ;
-!=			return NE;
-&&			return AND;
-\|\|		return OR;
+{if}			return IF;
+{else}		return ELSE;
+{while}		return WHILE;
+	/* {const}	return CONST; */
+{print}		return PRINT;
+\>=			return GE;
+\<=			return LE;
+==				return EQ;
+!=				return NE;
+&&				return AND;
+\|\|			return OR;
 
 	/* ----- V A R I A B L E S ----- */
 
@@ -52,17 +52,17 @@ int line_number = 1;
 													return INTEGER;
 												}
 
-	/* ------ O P E R A N D S ------ */
+	/* ------ O P E R A T O R ------ */
 
 [-+()=<>?:/*^]								{
-													debug("(l.%d) Operand detected: %c\n", line_number, *yytext);
+													debug("(l.%d) Operator detected: %c\n", line_number, *yytext);
 													char tmp = *yytext;
 													return tmp;
 												}
 
 	/* --- W H I T E S P A C E S --- */
 
-[ \t]											;
+[ ]											;
 
 	/* ------- N E W L I N E ------- */
 
@@ -72,11 +72,18 @@ int line_number = 1;
 													return '\n';
 												}
 
+	/* ----------- T A B ----------- */
+
+\t												{
+													debug("(l.%d) Tab detected\n", line_number);
+													return '\t';
+												}
+
 	/* ------ C O M M E N T S ------ */
 
 \/\/.*										{
 													debug("(l.%d) Comment detected\n", line_number);
-													return COMMENT;
+													//return COMMENT;
 												}
 
 	/* -------- E R R O R S -------- */

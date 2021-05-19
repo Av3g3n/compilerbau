@@ -17,7 +17,8 @@ Dict* tail = NULL;
 int DEBUG = 0;
 %}
 
-// %define parse.error verbose
+//%define parse.error verbose
+//%glr-parser
 
 %union {
 	int int_val;
@@ -28,7 +29,7 @@ int DEBUG = 0;
 %start program
 %token <int_val> INTEGER
 %token <var_val> VARIABLE
-%token IF ELSE COMMENT PRINT WHILE AND OR CONST
+%token IF ELSE PRINT WHILE AND OR /*COMMENT CONST*/
 %nonassoc IFX
 %nonassoc ELSE
 %precedence '='
@@ -38,49 +39,49 @@ int DEBUG = 0;
 %left '*' '/'
 %nonassoc UMINUS
 %right '^'
-%type <node_ptr> statement expression condition cond_list
+%type <node_ptr> statement expression condition cond_list stmt_list //function
 
 %%
 program:
-	program statement comment '\n'								{ ex($2); freeNode($2); }
-	| program comment '\n'
+	program statement													{ ex($2); freeNode($2); }
+	//| program function
 	|
 	;
 
+/* function:
+	; */
+
 statement:
-		expression					    								{ $$ = $1; }
-		| '(' condition ')'											{ $$ = $2; }
-		| VARIABLE '=' expression									{
-																				// TODO
-																				// colorize_err_out(); 
-																				// fprintf(stderr, "Variable content inside grammar: %s\n", $1);
-																				// reset_err_color();
-																				// char* tmp = malloc(strlen($1)+1);
-																				// trim_char(tmp, $1, ' ');
-																				// char* var1 = malloc(strlen(tmp)+1);
-																				// copy_until_char(var1, tmp, '=');
-																				// debug("final variable is: \"%s\"\n", var1);
-																				$$ = opr('=', 2, var($1), $3);
-																			}
-		| PRINT expression											{ $$ = opr(PRINT, 1, $2); }
-		| WHILE '(' condition ')' ':' statement				{ $$ = opr(WHILE, 2, $3, $6); }
-		| IF '(' condition ')' statement %prec IFX			{ $$ = opr(IF, 2, $3, $5); }
-		| IF '(' condition ')' statement ELSE statement		{ $$ = opr(IF, 2, $3, $5, $7); }
-		//| CONST VARIABLE '=' expression							{ ; } //TODO
+		'\n'																						{ $$ = opr('\n', 2, NULL, NULL); }
+		| expression '\n'			    														{ $$ = $1; }
+		| '(' condition ')' '\n'															{ $$ = $2; }
+		| VARIABLE '=' expression '\n'													{ debug("Grammar:\n\tVARIABLE = expression\n\tVARIABLE: \"%s\"\n", $1); $$ = opr('=', 2, var($1), $3); }
+		| PRINT expression '\n'																{ $$ = opr(PRINT, 1, $2); }
+		| WHILE '(' condition ')' ':' '\n' stmt_list									{ $$ = opr(WHILE, 2, $3, $7); }
+		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ $$ = opr(IF, 2, $3, $7); }
+		| IF '(' condition ')' ':' '\n' stmt_list ELSE ':' '\n' stmt_list		{ $$ = opr(IF, 3, $3, $7, $11); }
+		;
+
+stmt_list:
+		'\t' statement stmt_list								{ debug("Grammar:\n\tstmt_list statement\n"); $$ = opr('\n', 2, $2, $3); }
+		| statement													{$$ = $1; }
 		;
 
 condition:
-		'(' cond_list ')'												{ $$ = $2; }
+		'(' condition ')'												{ $$ = $2; }
 		| expression GE expression									{ $$ = opr(GE, 2, $1, $3); }
 		| expression LE expression									{ $$ = opr(LE, 2, $1, $3); }
 		| expression EQ expression									{ $$ = opr(EQ, 2, $1, $3); }
 		| expression NE expression									{ $$ = opr(NE, 2, $1, $3); }
 		| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
 		| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
+		| cond_list														{ $$ = $1; }
+		;
 
 cond_list:
 		condition AND condition										{ $$ = opr(AND, 2, $1, $3); }
 		| condition OR condition									{ $$ = opr(OR, 2, $1, $3); }
+		;
 
 expression:
 		INTEGER															{ debug("EXPR -> INTEGER content: %d\n", $1); $$ = con($1);}
@@ -102,11 +103,6 @@ expression:
 																			}
 		| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
 		| '(' expression ')'			   							{ $$ = $2;}
-		;
-
-comment:
-		COMMENT															{ debug("comment\n"); }
-		|																	{ debug("empty comment rule\n"); }
 		;
 
 %%
@@ -231,7 +227,7 @@ void print_help(){
 	char flag_v[] = "\t-v --> activates verbose messages\n";
 	char flag_f[] = "\t-f FILE --> file to read from\n";
 	char flag_h[] = "\t-h --> print help message\n";
-	printf("t4compiler [OPTIONS]\nOPTIIONS:\n%s%s%s", flag_v, flag_f, flag_h);
+	printf("t4compiler [OPTIONS]\nOPTIONS:\n%s%s%s", flag_v, flag_f, flag_h);
 }
 
 // TEMPORARY FUNCTIONS
@@ -268,7 +264,7 @@ int main(int argc, char const* argv[]){
 		return yyparse();
 	}
 	for(int i = 1; i < argc; i++){
-		if(strcmp(argv[i], "-d") == 0){
+		if(strcmp(argv[i], "-v") == 0){
 			DEBUG = 1;
 			yyparse();
 		}
