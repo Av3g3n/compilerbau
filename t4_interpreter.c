@@ -12,7 +12,7 @@ int ex(NodeType *p) {
                                  debug("RETURN VARIABLE VALUE: \"%s\"\n", p->var.str);
                                  return dict_getValue(p->var.str);
                               }
-      case type_operand:
+      case type_operator:
       switch(p->opr.oper) {
          case WHILE:          while(ex(p->opr.op[0]))
                                  ex(p->opr.op[1]);
@@ -44,7 +44,8 @@ int ex(NodeType *p) {
          case NE:             return ex(p->opr.op[0]) != ex(p->opr.op[1]);
          case EQ:             return ex(p->opr.op[0]) == ex(p->opr.op[1]);
          case AND:            return ex(p->opr.op[0]) && ex(p->opr.op[1]);
-         case OR:             return ex(p->opr.op[0]) || ex(p->opr.op[1]);      }
+         case OR:             return ex(p->opr.op[0]) || ex(p->opr.op[1]);      
+      }
    }
    return 0;
 }

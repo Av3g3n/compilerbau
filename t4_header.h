@@ -32,7 +32,7 @@ void print_help();
 typedef enum {
    type_constant,
    type_variable,
-   type_operand
+   type_operator
 } NodeEnum;
 
 typedef struct {

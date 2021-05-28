@@ -178,7 +178,7 @@ NodeType *opr(int oper, int nops, ...) {
    int i;
    if ((p = malloc(sizeof(NodeType) + (nops-1) * sizeof(NodeType *))) == NULL)
       yyerror("out of memory");
-   p->type = type_operand;
+   p->type = type_operator;
    p->opr.oper = oper;
    p->opr.nops = nops;
    va_start(ap, nops);
@@ -190,7 +190,7 @@ NodeType *opr(int oper, int nops, ...) {
 void freeNode(NodeType *p) {
    int i;
    if (!p) return;
-   if (p->type == type_operand) {
+   if (p->type == type_operator) {
       for (i = 0; i < p->opr.nops; i++)
          freeNode(p->opr.op[i]);
    }
