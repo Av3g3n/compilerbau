@@ -83,7 +83,6 @@ int line_number = 1;
 
 \/\/.*										{
 													debug("(l.%d) Comment detected\n", line_number);
-													//return COMMENT;
 												}
 
 	/* -------- E R R O R S -------- */

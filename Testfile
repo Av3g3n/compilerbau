@@ -1,0 +1,22 @@
+// variable declaration
+z = 10
+
+// if-else
+wenn(z==10):
+	hau_raus 1
+sonst:
+	hau_raus 0
+
+wenn(z!=10):
+	hau_raus 1
+sonst:
+	hau_raus 0
+
+// if
+wenn(z*2==20):
+	hau_raus z*2
+
+// while
+schleife(z>0):
+	hau_raus z
+	z = z - 1

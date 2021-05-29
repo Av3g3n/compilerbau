@@ -25,7 +25,6 @@ int ex(NodeType *p) {
          case PRINT:          printf("%d\n", ex(p->opr.op[0]));
                               return 0;
          case '\n':           /* WORKS? */
-                              debug("Section \"\\n\"\n\tNode1: \"%d\"\n\tNode2: \"%d\"\n", ex(p->opr.op[0]), ex(p->opr.op[1]));
                               ex(p->opr.op[0]); return ex(p->opr.op[1]);
          case '=':            debug("Section \"=\"\vVariable: \"%s\"\vValue: \"%d\"\n", p->opr.op[0]->var.str, ex(p->opr.op[1]));
                               dict_add(ex(p->opr.op[1]), p->opr.op[0]->var.str);

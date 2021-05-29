@@ -29,7 +29,7 @@ int DEBUG = 0;
 %start program
 %token <int_val> INTEGER
 %token <var_val> VARIABLE
-%token IF ELSE PRINT WHILE AND OR /*COMMENT CONST*/
+%token IF ELSE PRINT WHILE AND OR /* CONST*/
 %nonassoc IFX
 %nonassoc ELSE
 %precedence '='
@@ -52,10 +52,16 @@ program:
 	; */
 
 statement:
-		'\n'																						{ $$ = opr('\n', 2, NULL, NULL); }
+		'\n'																						{
+																										debug("statement --> \\n\n"); 
+																										$$ = opr('\n', 2, NULL, NULL); 
+																									}
 		| expression '\n'			    														{ $$ = $1; }
 		| '(' condition ')' '\n'															{ $$ = $2; }
-		| VARIABLE '=' expression '\n'													{ debug("Grammar:\n\tVARIABLE = expression\n\tVARIABLE: \"%s\"\n", $1); $$ = opr('=', 2, var($1), $3); }
+		| VARIABLE '=' expression '\n'													{ 
+																										debug("statement --> VARIABLE = expression \\n\n\tVAR: %s\n", $1);
+																										$$ = opr('=', 2, var($1), $3); 
+																									}
 		| PRINT expression '\n'																{ $$ = opr(PRINT, 1, $2); }
 		| WHILE '(' condition ')' ':' '\n' stmt_list									{ $$ = opr(WHILE, 2, $3, $7); }
 		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ $$ = opr(IF, 2, $3, $7); }
@@ -63,8 +69,11 @@ statement:
 		;
 
 stmt_list:
-		'\t' statement stmt_list								{ debug("Grammar:\n\t'\\t' statement stmt_list\n"); $$ = opr('\n', 2, $2, $3); }
-		| statement													{$$ = $1; }
+		stmt_list '\t' statement								{ 
+																			debug("stmt_list --> \\t statement stmt_list\n");
+																			$$ = opr('\n', 2, $1, $3);
+																		}
+		| '\t' statement											{ $$ = $2; }
 		;
 
 condition:
@@ -84,8 +93,14 @@ cond_list:
 		;
 
 expression:
-		INTEGER															{ debug("EXPR -> INTEGER content: %d\n", $1); $$ = con($1);}
-		| VARIABLE				   									{ debug("EXPR -> VARIABLE content: \"%s\"\n", $1); $$ = var($1); }
+		INTEGER															{
+																				debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
+																				$$ = con($1);
+																			}
+		| VARIABLE				   									{ 
+																				debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
+																				$$ = var($1);
+																			}
 		| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
 		| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
 		| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
