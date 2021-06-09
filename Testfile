@@ -36,6 +36,8 @@ wenn(param1 == 10 && param2 == 100):
 	hau_raus 1
 sonst:
 	hau_raus 0
+	hau_raus 2
+
 // OR
 wenn(param1 != 10 || param2 == 100):
 	hau_raus 1
