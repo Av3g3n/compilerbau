@@ -15,6 +15,7 @@ int yylex(void);
 Dict* head = NULL;
 Dict* tail = NULL;
 int DEBUG = 0;
+int current_line = 1;
 %}
 
 //%define parse.error verbose
@@ -66,6 +67,8 @@ statement:
 		| WHILE '(' condition ')' ':' '\n' stmt_list									{ $$ = opr(WHILE, 2, $3, $7); }
 		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ $$ = opr(IF, 2, $3, $7); }
 		| IF '(' condition ')' ':' '\n' stmt_list ELSE ':' '\n' stmt_list		{ $$ = opr(IF, 3, $3, $7, $11); }
+		| error '\n'									{ yyclearin; }
+		| '\t' error									{ yyclearin; }
 		;
 
 stmt_list:
@@ -212,9 +215,14 @@ void freeNode(NodeType *p) {
    free (p);
 }
 
+void setCurrentLine(int line){
+	current_line = line;
+}
+
+
 void yyerror(char *s){
 	colorize_err_out();
-   fprintf(stderr, "%s\n", s);
+	fprintf(stderr, "%d: %s\n", current_line, s);
 	reset_err_color();
 }
 

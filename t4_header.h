@@ -21,6 +21,9 @@ Dict* dict_keyExists(const char* restricted);
 extern int DEBUG;
 int debug(const char*, ...);
 
+/* E R R O R  H A N D L I N G */
+void setCurrentLine(int);
+
 /* E R R O R  C O L O R */
 void colorize_err_out();
 void reset_err_color();

@@ -68,6 +68,7 @@ int line_number = 1;
 
 \n 											{
 													debug("(l.%d) Newline detected\n", line_number);
+													setCurrentLine(line_number);
 													line_number++;
 													return '\n';
 												}
