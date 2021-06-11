@@ -7,21 +7,25 @@ ____ = 10
 hau_raus ((10-1)^2*2-(10*____))/(3*____+1)
 
 // if-else
+// @expected 1
 wenn(z==10):
 	hau_raus 1
 sonst:
 	hau_raus 0
 
+// @expected 0
 wenn(z!=10):
 	hau_raus 1
 sonst:
 	hau_raus 0
 
 // if
+// @expected 20
 wenn(z*2==20):
 	hau_raus z*2
 
 // while
+// @expected 10 to 0
 schleife(z>0):
 	hau_raus z
 	z = z - 1
@@ -32,20 +36,33 @@ param1 = 10
 param2 = 10^2
 
 // AND
+// @expected 1
 wenn(param1 == 10 && param2 == 100):
 	hau_raus 1
 sonst:
 	hau_raus 0
 // OR
+// @expected 1
 wenn(param1 != 10 || param2 == 100):
 	hau_raus 1
 sonst:
 	hau_raus 0
 
 // MIXED
+// @expected 1
 wenn(((param1+10 == 20) && (10==10)) || 10 >= 11):
 	hau_raus 1
 sonst:
 	hau_raus 0
+
+// Functions
+
+//Funktion _determine_residual(a, b):
+//	Schleife(1):
+//		Wenn(a - b < 0):
+//			RETURN a
+//		a = a - b
+		
+//hau_raus _determine_residual(13,10)
 
 // Error handling

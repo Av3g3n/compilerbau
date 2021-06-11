@@ -1,6 +1,10 @@
 #ifndef T4_HEADER_H
 #define T4_HEADER_H
 
+/* F U N C T I O N  E V A L U A T I O N */
+#define ERR_FUNEVAL -1
+extern int FUNEVAL;
+
 /* D I C T I O N A R Y */ 
 // union for difference between int or string for later
 typedef struct Dict {
@@ -12,18 +16,35 @@ typedef struct Dict {
 extern Dict* head;
 extern Dict* tail;
 
-Dict* dict_next(Dict*);
+Dict* dict_next(Dict*); // NEEDED?
 int dict_getValue(const char* restricted);
 void dict_add(int, char*);
 Dict* dict_keyExists(const char* restricted);
+void free_dict();
+void printDict(Dict*, int);
+
+/* S Y M B O L T A B L E */
+typedef struct SymT {
+	struct Dict* dhead;
+	struct Dict* dtail;
+        struct SymT* ptr;
+} SymT;
+
+extern SymT* scope;
+extern SymT* globalscope;
+
+void new_scope();
+int scope_getValue(const char* restricted);
+void scope_add(int, char*);
+Dict* scope_keyExists(const char* restricted);
+void free_scope();
+void printFromFullScope();
+// Dict* keyExists(); // in current scope?
+// int getKeyValue();
 
 /* D E B U G  M O D E */
 extern int DEBUG;
 int debug(const char*, ...);
-
-/* E R R O R  C O L O R */
-void colorize_err_out();
-void reset_err_color();
 
 /* H E L P  M E S S A G E */
 void print_help();
@@ -58,10 +79,19 @@ typedef struct NodeTypeTag {
    };
 } NodeType;
 
+NodeType *opr(int oper, int nops, ...);
+NodeType *var(char* str);
+NodeType *con(int value);
+void freeNode(NodeType *p);
+int ex(NodeType *p);
+extern int tabCount;
+
 /* T E M P O R A R Y  F U N C T I O N S ? */
-void prompt_in();
-void prompt_out();
-int trim_char(char* restrict, const char* restrict, const char);
-int copy_until_char(char* restrict, const char* restrict, const char);
+void prompt_in(); // NEEDED?
+void prompt_out(); // NEEDED?
+int trim_char(char* restrict, const char* restrict, const char); // NEEDED?
+int copy_until_char(char* restrict, const char* restrict, const char); // NEEDED?
+void colorize_err_out(); // NEEDED?
+void reset_err_color(); // NEEDED?
 
 #endif
