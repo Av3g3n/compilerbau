@@ -16,30 +16,45 @@ int ex(NodeType *p) {
                               }
       case type_operator:
       switch(p->opr.oper) {
-         case WHILE:          while(ex(p->opr.op[0]))
+         case FUN:            {
+                                 new_scope();
+                                 if(p->opr.nops == 3){
+                                    ex(p->opr.op[2]);
+                                 }
+                                 // TODO
+                                 free_scope();
+                                 return 0;
+                              }
+         case WHILE:          new_scope();
+                              while(ex(p->opr.op[0]))
                                  ex(p->opr.op[1]);
+                              free_scope();
                               return 0;
          case IF:             debug("INTERPRETER: IF\n");
-                              printFromFullScope();
-                              new_scope();
-                              if (ex(p->opr.op[0]))
+                              if (ex(p->opr.op[0])){
+                                 new_scope();
                                  ex(p->opr.op[1]);
-                              else if (p->opr.nops > 2)
+                                 free_scope();
+                              }
+                              else if (p->opr.nops == 3){
+                                 new_scope();
                                  ex(p->opr.op[2]);
-                              printFromFullScope();
-                              free_scope();
+                                 free_scope();
+                              }
                               return 0;
          case PRINT:          // isatty
                               // https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
                               //printf(BIBLA WHIB ">>>" CRST BPUR " %d\n" CRST, ex(p->opr.op[0]));
                               printf("%d\n", ex(p->opr.op[0]));
                               return 0;
-         case '\n':           debug("INTERPRETER: \\n\n");
+         case '\n':           // works right?
+                              debug("INTERPRETER: \\n\n");
                               ex(p->opr.op[0]); return ex(p->opr.op[1]);
          case '=':            debug("INTERPRETER: %s = %d\n", p->opr.op[0]->var.str, ex(p->opr.op[1]));
                               scope_add(ex(p->opr.op[1]), p->opr.op[0]->var.str);
                               debug("INTERPRETER: GETVALUE --> %d\n", scope_getValue(p->opr.op[0]->var.str));
                               return scope_getValue(p->opr.op[0]->var.str);
+         case ',':            ex(p->opr.op[0]); return ex(p->opr.op[1]);
          case UMINUS:         return -ex(p->opr.op[0]);
          case '+':            return ex(p->opr.op[0]) + ex(p->opr.op[1]);
          case '-':            return ex(p->opr.op[0]) - ex(p->opr.op[1]);

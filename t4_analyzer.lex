@@ -37,7 +37,7 @@ int line_number = 1;
 				}
 	/* {const}	return CONST; */
 {print}		return PRINT;
-	/* {function}	return FUN; */
+{function}	return FUN;
 \>=			return GE;
 \<=			return LE;
 ==				return EQ;

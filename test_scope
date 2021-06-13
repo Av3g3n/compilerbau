@@ -1,3 +1,5 @@
+// double free in tcache2
+
 z = 3
 my_num = 7
 ____ = 0
@@ -14,3 +16,4 @@ hau_raus my_num
 test = 25
 wenn(5^2 == test):
 	hau_raus test
+	

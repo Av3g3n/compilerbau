@@ -15,6 +15,7 @@ SymT* globalscope = NULL; // NEEDED?
 int currentTabCount;
 int DEBUG;
 int FUNEVAL;
+int nParam; // TODO
 %}
 
 //%define parse.error verbose
@@ -29,7 +30,7 @@ int FUNEVAL;
 %start program
 %token <int_val> INTEGER
 %token <var_val> VARIABLE
-%token IF ELSE PRINT WHILE AND OR /* FUN CONST */
+%token IF ELSE PRINT WHILE AND OR FUN /* CONST */
 %nonassoc IFX
 %nonassoc ELSE
 %precedence '='
@@ -39,111 +40,128 @@ int FUNEVAL;
 %left '*' '/'
 %nonassoc UMINUS
 %right '^'
-%type <node_ptr> statement expression condition cond_list stmt_list /* var_list function */
+%type <node_ptr> statement expression condition cond_list stmt_list param_list expr_list function
 
 %%
 program:
-	program statement													{ ex($2); freeNode($2); }
-	/* program function													{ ex($2); freeNode($2); } */
-	|
+	// empty
+	| program statement													{ ex($2); freeNode($2); }
+	| program function													{ ex($2); freeNode($2); }
 	;
 
-/* function:
-	FUN VARIABLE '(' var_list ')' ':' '\n' stmt_list		{ ; }
+function:
+	FUN VARIABLE '(' ')' ':' '\n' stmt_list						{ $$ = opr(FUN, 2, $2, $7); }
+	| FUN VARIABLE '(' param_list ')' ':' '\n' stmt_list		{ $$ = opr(FUN, 3, $2, $8, $4); }
 	;
 
-var_list:
-	VARIABLE ',' var_list											{ ; }
-	|																		{ ; }
-	; */
+param_list:
+	VARIABLE																	{ $$ = var($1); }
+	| param_list ',' VARIABLE											{ $$ = opr(',', 2, $1, var($3)); } // TODO
+	;
 
 statement:
-		'\n'																						{
-																										//debug("statement --> \\n\n"); 
-																										$$ = opr('\n', 2, NULL, NULL); 
-																									}
-		| expression '\n'			    														{ $$ = $1; }
-		| '(' condition ')' '\n'															{ $$ = $2; }
-		| VARIABLE '=' expression '\n'													{ 
-																										debug("GRAMMAR: statement --> %s = expression\n", $1);
-																										$$ = opr('=', 2, var($1), $3); 
-																									}
-		| PRINT expression '\n'																{ $$ = opr(PRINT, 1, $2); }
-		| WHILE '(' condition ')' ':' '\n' stmt_list									{ $$ = opr(WHILE, 2, $3, $7); }
-		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ 
-																										debug("GRAMMAR: statement --> IF ...\n");
-																										tabCount--;
-																										$$ = opr(IF, 2, $3, $7);
-																									}
-		| IF '(' condition ')' ':' '\n' stmt_list ELSE ':' '\n' stmt_list		{ $$ = opr(IF, 3, $3, $7, $11); } 
-		;
+	'\n'																						{
+																									//debug("statement --> \\n\n"); 
+																									$$ = opr('\n', 2, NULL, NULL); 
+																								}
+	| expression '\n'			    														{ $$ = $1; }
+	| '(' condition ')' '\n'															{ $$ = $2; }
+	| VARIABLE '=' expression '\n'													{ 
+																									debug("GRAMMAR: statement --> %s = expression\n", $1);
+																									$$ = opr('=', 2, var($1), $3); 
+																								}
+	| PRINT expression '\n'																{ $$ = opr(PRINT, 1, $2); }
+	| WHILE '(' condition ')' ':' '\n' stmt_list									{ 
+																									tabCount--;
+																									$$ = opr(WHILE, 2, $3, $7);
+																								}
+	| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ 
+																									debug("GRAMMAR: statement --> IF ...\n");
+																									tabCount--;
+																									$$ = opr(IF, 2, $3, $7);
+																								}
+	| IF '(' condition ')' ':' '\n' stmt_list ELSE ':' '\n' stmt_list		{ $$ = opr(IF, 3, $3, $7, $11); }
+	| VARIABLE '(' expr_list ')'														{ $$ = fun(NULL, var($1), $3); } // TODO
+	| VARIABLE '=' VARIABLE '(' expr_list ')'										{ $$ = fun(var($1), var($3), $5); } // TODO
+	;
 
 stmt_list:
-		tabs statement stmt_list								{
-																			debug("GRAMMAR: stmt_list --> tabs statement stmt_list\n");
-																			$$ = opr('\n', 2, $2, $3);
-																		}
-		| tabs statement											{
-																			debug("GRAMMAR: stmt_list --> tabs statement\n");
-																			$$ = $2; 
-																		}
-		;
+	'\t' statement stmt_list								{
+																		debug("GRAMMAR: stmt_list --> tabs statement stmt_list\n");
+																		$$ = opr('\n', 2, $2, $3);
+																	}
+	| '\t' statement											{
+																		// comes first
+																		debug("GRAMMAR: stmt_list --> tabs statement\n");
+																		$$ = $2; 
+																	}
+	;
 
-tabs:
+/* tabs:
  	tabs '\t' 														{
+																			debug("GRAMMAR: tabs --> tabs \\t\n");
 																			currentTabCount++;
-																			//
+																			if(currentTabCount > tabCount){
+																				// TODO
+																			}
 	 																	}
 	| '\t'															{
+																			// comes first
+																			debug("GRAMMAR: tabs --> \\t\n");
 																			if(tabCount > 1){
 																				currentTabCount++;
 																			}
 																		}
-	;
+	; */
 
 condition:
-		'(' condition ')'												{ $$ = $2; }
-		| expression GE expression									{ $$ = opr(GE, 2, $1, $3); }
-		| expression LE expression									{ $$ = opr(LE, 2, $1, $3); }
-		| expression EQ expression									{ $$ = opr(EQ, 2, $1, $3); }
-		| expression NE expression									{ $$ = opr(NE, 2, $1, $3); }
-		| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
-		| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
-		| cond_list														{ $$ = $1; }
-		;
+	'(' condition ')'												{ $$ = $2; }
+	| expression GE expression									{ $$ = opr(GE, 2, $1, $3); }
+	| expression LE expression									{ $$ = opr(LE, 2, $1, $3); }
+	| expression EQ expression									{ $$ = opr(EQ, 2, $1, $3); }
+	| expression NE expression									{ $$ = opr(NE, 2, $1, $3); }
+	| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
+	| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
+	| cond_list														{ $$ = $1; }
+	;
 
 cond_list:
-		condition AND condition										{ $$ = opr(AND, 2, $1, $3); }
-		| condition OR condition									{ $$ = opr(OR, 2, $1, $3); }
-		;
+	condition AND condition										{ $$ = opr(AND, 2, $1, $3); }
+	| condition OR condition									{ $$ = opr(OR, 2, $1, $3); }
+	;
 
 expression:
-		INTEGER															{
-																				//debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
-																				$$ = con($1);
-																			}
-		| VARIABLE				   									{ 
-																				//debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
-																				$$ = var($1);
-																			}
-		| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
-		| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
-		| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
-		| expression '*' expression								{ $$ = opr('*', 2, $1, $3); }
-		| expression '/' expression								{ // TODO
-																				if($3->con.value){
-																					$$ = opr('/', 2, $1, $3);
-																				} else {
-																					colorize_err_out();
-																					fprintf(stderr, "%d.%d-%d.%d: division by zero\n",
-																								@3.first_line, @3.first_column,
-																								@3.last_line, @3.last_column);
-																					reset_err_color();
-																				} 
-																			}
-		| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
-		| '(' expression ')'			   							{ $$ = $2;}
-		;
+	INTEGER															{
+																			//debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
+																			$$ = con($1);
+																		}
+	| VARIABLE				   									{ 
+																			//debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
+																			$$ = var($1);
+																		}
+	| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
+	| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
+	| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
+	| expression '*' expression								{ $$ = opr('*', 2, $1, $3); }
+	| expression '/' expression								{ // TODO
+																			if($3->con.value){
+																				$$ = opr('/', 2, $1, $3);
+																			} else {
+																				colorize_err_out();
+																				fprintf(stderr, "%d.%d-%d.%d: division by zero\n",
+																					@3.first_line, @3.first_column,
+																					@3.last_line, @3.last_column);
+																				reset_err_color();
+																			} 
+																		}
+	| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
+	| '(' expression ')'			   							{ $$ = $2; }
+	;
+
+expr_list:
+	expression														{ $$ = $1; } 
+	| expr_list ',' expression									{ $$ = opr(',', 2, $1, $3); }
+	;
 
 %%
 // ----------------------
@@ -155,17 +173,6 @@ Dict* dict_next(Dict* ptr){
 }
 
 int dict_getValue(const char* restrict str){
-   /* Dict* current = head;
-   while(current != NULL){
-      if(strcmp(current->key, str) == 0){
-			FUNEVAL = 1;
-         return current->value;
-      } else {
-         current = dict_next(current);
-      }
-   }
-	FUNEVAL = 0;
-	return ERR_FUNEVAL; */
 	Dict* temp = dict_keyExists(str);
 	if(temp != NULL){
 		FUNEVAL = 1;
@@ -176,12 +183,6 @@ int dict_getValue(const char* restrict str){
 }
 
 void dict_add(int val, char* str){
-	/* Dict* temp = dict_keyExists(str);
-	if(temp != NULL) {
-		temp->value = val;
-		return;
-	}
-	// TODO instead of Dict* dict, use just temp */
    Dict* dict = (Dict*)malloc(sizeof(Dict));
    dict->value = val;
    dict->key = str;
@@ -269,22 +270,6 @@ void scope_add(int val, char* str){
 }
 
 int scope_getValue(const char* restrict str){
-	/* printFromFullScope();
-	SymT* current = scope;
-	while(current != NULL){
-		head = current->dhead;
-		int temp = dict_getValue(str);
-		if(FUNEVAL){
-			current = current->ptr;
-		}
-		else {
-			head = scope->dhead;
-			FUNEVAL = 1;
-			return temp;
-		}
-	}
-	FUNEVAL = 0;
-	return -1; */
 	Dict* temp = scope_keyExists(str);
 	if(temp != NULL){
 		debug("FUN: scope_getValue returns real value\n");
@@ -345,7 +330,6 @@ void printFromFullScope(){
 /* S T R U C T U R E S  F O R  G R A M M A R  R U L E S */
 // -------------------------------------------------------
 
-#define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
 NodeType* con(int value) {
 	//debug("Function \"con\" parameter: %d\n", value);
    NodeType *p;
@@ -355,6 +339,7 @@ NodeType* con(int value) {
    p->con.value = value;
    return p;
 }
+
 NodeType* var(char* str) {
 	//debug("Function \"var\" parameter: %s\n", str);
    NodeType *p;
@@ -364,6 +349,11 @@ NodeType* var(char* str) {
    p->var.str = str;
    return p;
 }
+
+NodeType* fun(NodeType* var1, NodeType* var2, NodeType* params) {
+	// TODO
+}
+
 NodeType* opr(int oper, int nops, ...) {
    va_list ap;
    NodeType *p;
@@ -380,7 +370,7 @@ NodeType* opr(int oper, int nops, ...) {
    return p;
 }
 
-void freeNode(NodeType *p) {
+void freeNode(NodeType* p) {
    if (!p) return;
    if (p->type == type_operator) {
       for (int i = 0; i < p->opr.nops; i++)

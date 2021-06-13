@@ -1,9 +1,13 @@
 //
 
 z = 3
+my_var1 = 50
 wenn (z == 3): // tabCount = 1
 	x = 5 // Variable darf nur innerhalb Kontrollstruktur existieren, currentTabCount 1
 	schleife(x > 0): // tabCount = 2
 		hau_raus x // currentTabCount = 2
 		x = x - 1 // currentTabCount = 2
+		my_var1 = 49
+		my_var1 = 48
+		my_var1 = 47
 // wie soll es weitergehen?	

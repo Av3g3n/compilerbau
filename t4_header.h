@@ -39,8 +39,6 @@ void scope_add(int, char*);
 Dict* scope_keyExists(const char* restricted);
 void free_scope();
 void printFromFullScope();
-// Dict* keyExists(); // in current scope?
-// int getKeyValue();
 
 /* D E B U G  M O D E */
 extern int DEBUG;
@@ -50,9 +48,13 @@ int debug(const char*, ...);
 void print_help();
 
 /* S T R U C T U R E S  F O R  G R A M M A R  R U L E S */
+
+#define SIZEOF_NODETYPE ((char *)&p->con - (char *)p) // NEEDED?
+
 typedef enum {
    type_constant,
    type_variable,
+   type_function,
    type_operator
 } NodeEnum;
 
@@ -65,6 +67,11 @@ typedef struct {
 } VariableNode;
 
 typedef struct {
+   char* str1;
+   char* str2;
+} FunctionNode;
+
+typedef struct {
    int oper;
    int nops;
    struct NodeTypeTag *op[1];
@@ -75,16 +82,21 @@ typedef struct NodeTypeTag {
    union {
       ConstantNode con;
       VariableNode var;
+      FunctionNode fun;
       OperatorNode opr;
    };
 } NodeType;
 
-NodeType *opr(int oper, int nops, ...);
-NodeType *var(char* str);
-NodeType *con(int value);
-void freeNode(NodeType *p);
-int ex(NodeType *p);
-extern int tabCount;
+NodeType* opr(int, int, ...);
+NodeType* var(char*);
+NodeType* fun(NodeType*, NodeType*, NodeType*);
+NodeType* con(int);
+void freeNode(NodeType*);
+int ex(NodeType*);
+
+/* O T H E R */
+
+extern int tabCount; // NEEDED?
 
 /* T E M P O R A R Y  F U N C T I O N S ? */
 void prompt_in(); // NEEDED?
