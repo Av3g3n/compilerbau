@@ -1,0 +1,337 @@
+// Test, wie viele nested if's möglich sind, maximal 57 if's
+
+x = 1;
+
+wenn (1 == 1) {
+	x = x + 1;
+	hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	wenn (1 == 1) {
+		x = x + 1;
+		hau_raus x;
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+
+	}
+	}
+}
