@@ -6,13 +6,14 @@ else			(S|s)(O|o)(N|n)(S|s)(T|t)
 while			(S|s)(C|c)(H|h)(L|l)(E|e)(I|i)(F|f)(E|e)
 const			(S|s)(T|t)(A|a)(B|b)(I|i)(L|l)
 print			(H|h)(A|a)(U|u)_(R|r)(A|a)(U|u)(S|s)
+bad_chars 	([äÄöÖüÜß])
 
 %{ 
 #include <stdlib.h>
 #include <string.h>
 #include "t4_parser_gen.tab.h"
 #include "t4_header.h"
-void yyerror(char *);
+void yyerror(const char *);
 int line_number = 1;
 %}
 
@@ -29,6 +30,7 @@ int line_number = 1;
 !=				return NE;
 &&				return AND;
 \|\|			return OR;
+
 
 	/* ----- V A R I A B L E S ----- */
 
@@ -87,12 +89,20 @@ int line_number = 1;
 												}
 
 	/* -------- E R R O R S -------- */
-	/* any input, which is not matched, is identified as an error */
+	/* special faulty chars */
+{bad_chars}											{
+													printf("in bad chars: , %d\n", *yytext);
+												}
 
+	/* any input, which is not matched, is identified as an error */
 .												{
-													colorize_err_out();
-   												fprintf(stderr, "Invalid character at line: %d\n", line_number);
-													reset_err_color();
+   													//char *testing = strdup(yytext);
+													
+													char result_string[22] = "Invalid Character '";
+													strcat(result_string, yytext);
+													strcat(result_string, "'");
+													//printf("yytext, String: %s, Zahl: %d\n", yytext , testing);
+													yyerror(result_string);
 													// return TRASH;
 												}
 

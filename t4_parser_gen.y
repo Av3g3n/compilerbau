@@ -10,7 +10,7 @@ NodeType *var(char* str);
 NodeType *con(int value);
 void freeNode(NodeType *p);
 int ex(NodeType *p);
-void yyerror(char *);
+void yyerror(const char *);
 int yylex(void);
 Dict* head = NULL;
 Dict* tail = NULL;
@@ -42,9 +42,11 @@ int current_line = 1;
 %right '^'
 %type <node_ptr> statement expression condition cond_list stmt_list //function
 
+%define parse.error verbose
+
 %%
 program:
-	program statement													{ ex($2); freeNode($2); }
+	program statement									{ ex($2); freeNode($2); }
 	//| program function
 	|
 	;
@@ -53,74 +55,71 @@ program:
 	; */
 
 statement:
-		'\n'																						{
-																										debug("statement --> \\n\n"); 
-																										$$ = opr('\n', 2, NULL, NULL); 
-																									}
-		| expression '\n'			    														{ $$ = $1; }
-		| '(' condition ')' '\n'															{ $$ = $2; }
-		| VARIABLE '=' expression '\n'													{ 
-																										debug("statement --> VARIABLE = expression \\n\n\tVAR: %s\n", $1);
-																										$$ = opr('=', 2, var($1), $3); 
-																									}
-		| PRINT expression '\n'																{ $$ = opr(PRINT, 1, $2); }
-		| WHILE '(' condition ')' ':' '\n' stmt_list									{ $$ = opr(WHILE, 2, $3, $7); }
-		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX						{ $$ = opr(IF, 2, $3, $7); }
+		'\n'										{
+													debug("statement --> \\n\n"); 
+													$$ = opr('\n', 2, NULL, NULL); 
+												}
+		| expression '\n'			    					{ $$ = $1; }
+		| '(' condition ')' '\n'							{ $$ = $2; }
+		| VARIABLE '=' expression '\n'							{ 
+													debug("statement --> VARIABLE = expression \\n\n\tVAR: %s\n", $1); 
+													$$ = opr('=', 2, var($1), $3); 
+												}
+		| PRINT expression '\n'								{ $$ = opr(PRINT, 1, $2);}
+		| WHILE '(' condition ')' ':' '\n' stmt_list					{ $$ = opr(WHILE, 2, $3, $7); }
+		| IF '(' condition ')' ':' '\n' stmt_list %prec IFX				{ $$ = opr(IF, 2, $3, $7); }
 		| IF '(' condition ')' ':' '\n' stmt_list ELSE ':' '\n' stmt_list		{ $$ = opr(IF, 3, $3, $7, $11); }
-		| error '\n'									{ yyclearin; }
-		| '\t' error									{ yyclearin; }
+		| error '\n'									{ yyclearin; yyerrok; }
+		| '\t' error									{ yyclearin; yyerrok; }
+		| error '=' expression '\n'							{ yyclearin; yyerrok; }
 		;
 
 stmt_list:
-		stmt_list '\t' statement								{ 
-																			debug("stmt_list --> \\t statement stmt_list\n");
-																			$$ = opr('\n', 2, $1, $3);
-																		}
-		| '\t' statement											{ $$ = $2; }
+		stmt_list '\t' statement							{ 
+													debug("stmt_list --> \\t statement stmt_list\n");
+													$$ = opr('\n', 2, $1, $3);
+												}
+		| '\t' statement								{ $$ = $2; }
 		;
 
 condition:
-		'(' condition ')'												{ $$ = $2; }
-		| expression GE expression									{ $$ = opr(GE, 2, $1, $3); }
-		| expression LE expression									{ $$ = opr(LE, 2, $1, $3); }
-		| expression EQ expression									{ $$ = opr(EQ, 2, $1, $3); }
-		| expression NE expression									{ $$ = opr(NE, 2, $1, $3); }
-		| expression '<' expression								{ $$ = opr('<', 2, $1, $3); }
-		| expression '>' expression								{ $$ = opr('>', 2, $1, $3); }
-		| cond_list														{ $$ = $1; }
+		'(' condition ')'								{ $$ = $2; }
+		| expression GE expression							{ $$ = opr(GE, 2, $1, $3); }
+		| expression LE expression							{ $$ = opr(LE, 2, $1, $3); }
+		| expression EQ expression							{ $$ = opr(EQ, 2, $1, $3); }
+		| expression NE expression							{ $$ = opr(NE, 2, $1, $3); }
+		| expression '<' expression							{ $$ = opr('<', 2, $1, $3); }
+		| expression '>' expression							{ $$ = opr('>', 2, $1, $3); }
+		| cond_list									{ $$ = $1; }
 		;
 
 cond_list:
-		condition AND condition										{ $$ = opr(AND, 2, $1, $3); }
-		| condition OR condition									{ $$ = opr(OR, 2, $1, $3); }
+		condition AND condition								{ $$ = opr(AND, 2, $1, $3); }
+		| condition OR condition							{ $$ = opr(OR, 2, $1, $3); }
 		;
 
 expression:
-		INTEGER															{
-																				debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
-																				$$ = con($1);
-																			}
-		| VARIABLE				   									{ 
-																				debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
-																				$$ = var($1);
-																			}
-		| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
-		| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
-		| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
-		| expression '*' expression								{ $$ = opr('*', 2, $1, $3); }
-		| expression '/' expression								{ // TODO
-																				if($3->con.value){
-																					$$ = opr('/', 2, $1, $3);
-																				} else {
-																					colorize_err_out();
-																					fprintf(stderr, "%d.%d-%d.%d: division by zero\n",
-																								@3.first_line, @3.first_column,
-																								@3.last_line, @3.last_column);
-																					reset_err_color();
-																				} 
-																			}
-		| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
-		| '(' expression ')'			   							{ $$ = $2;}
+		INTEGER										{
+													debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
+													$$ = con($1);
+												}
+		| VARIABLE									{ 
+													debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
+													$$ = var($1);
+												}
+		| '-' expression %prec UMINUS							{ $$ = opr(UMINUS, 1, $2); }
+		| expression '+' expression							{ $$ = opr('+', 2, $1, $3); }
+		| expression '-' expression							{ $$ = opr('-', 2, $1, $3); }
+		| expression '*' expression							{ $$ = opr('*', 2, $1, $3); }
+		| expression '/' expression							{ // TODO
+													if($3->con.value){
+													$$ = opr('/', 2, $1, $3);
+												} else {											
+													yyerror("division by zero\n");				
+													} 
+												}
+		| expression '^' expression							{ $$ = opr('^', 2, $1, $3); }
+		| '(' expression ')'								{ $$ = $2;}
 		;
 
 %%
@@ -220,9 +219,11 @@ void setCurrentLine(int line){
 }
 
 
-void yyerror(char *s){
+void yyerror(const char *s){
 	colorize_err_out();
 	fprintf(stderr, "%d: %s\n", current_line, s);
+	//fprintf(stderr, "Digit: %d, Char: %c, String: %s\n", yytext, yytext);
+	//fprintf(stderr, "yychar, Char: %c\n", yychar);
 	reset_err_color();
 }
 
