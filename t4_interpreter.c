@@ -13,8 +13,8 @@ int ex(NodeType *p) {
       case type_constant:     return p->con.value;
       case type_variable:     //debug("INTERPRETER: type_variable: %s\n", p->var.str);
                               return scope_getValue(p->var.str);
-      case type_function:     //
-                              return;
+      case type_function:     // FUTURE IMPLEMENTATION
+                              return 0;
       case type_operator:
       switch(p->opr.oper) {
          case FUN:            // get functionNode via string

@@ -143,9 +143,12 @@ expression:
 																			if($3->con.value){
 																				$$ = opr('/', 2, $1, $3);
 																			} else {
-																				fprintf(stderr, "%d.%d-%d.%d: division by zero\n",
-																					@3.first_line, @3.first_column,
-																					@3.last_line, @3.last_column);
+																				if(ttyout)
+																					fprintf(stderr, BIRED "%d.%d-%d.%d: division by zero\n" CRST,
+																					@3.first_line, @3.first_column, @3.last_line, @3.last_column);
+																				else
+																					fprintf(stderr,"%d.%d-%d.%d: division by zero\n",
+																					@3.first_line, @3.first_column, @3.last_line, @3.last_column);
 																			} 
 																		}
 	| expression '^' expression								{ $$ = opr('^', 2, $1, $3); }
@@ -460,11 +463,11 @@ void freeNode(NodeType* p) {
 /* E R R O R  H A N D L I N G */
 // -----------------------------
 
-void yyerror(const char *s){
+void yyerror(const char *err){
 	if(ttyout)
-   	fprintf(stderr, BRED "%d: %s\n" CRST, line_number, s);
+		fprintf(stderr, BIRED "%s\n" CRST, err);
 	else
-		fprintf(stderr, "%d: %s\n", line_number, s);
+		fprintf(stderr, "%s\n", err);
 }
 
 // ---------------------

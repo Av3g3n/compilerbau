@@ -15,6 +15,7 @@ showenv		(Z|z)(E|e)(I|i)(G|g)_(V|v)(A|a)(R|r)(S|s)
 #include <string.h>
 #include "t4_parser_gen.tab.h"
 #include "t4_header.h"
+#include "ansi_colors.h"
 int line_number = 1;
 %}
 
@@ -79,12 +80,18 @@ int line_number = 1;
 	/* -------- E R R O R S -------- */
 	/* special faulty chars */
 {bad_chars}									{
-													fprintf(stderr, "in bad chars: , %d\n", *yytext);
+													if(ttyout)
+														fprintf(stderr, BIRED "in bad chars: , %d\n" CRST, *yytext);
+													else
+														fprintf(stderr, "in bad chars: , %d\n", *yytext);
 												}
 
 	/* any input, which is not matched, is identified as an error */
 .												{
-   												fprintf(stderr, "Invalid character at line: %d\n", line_number);
+   												if(ttyout)	
+														fprintf(stderr, BIRED "Invalid character at line: %d\n" CRST, line_number);
+													else
+														fprintf(stderr, "Invalid character at line: %d\n", line_number);
 												}
 
 %%
