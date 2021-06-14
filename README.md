@@ -18,12 +18,11 @@ Das Schwert kann mit folgenden Kommandos auf der Kommandozeile gezogen werden:
 
 Folgende zusätzliche Optionen können die Präzision der Klinge verbessern:
 - `-h` : Zeigt alle verfügbaren Optionen
-- `-v` : Verbose , bzw Debug-Mode(scharfe präzise Klinge)
-- `-f FILE` : Einlesen einer Datei 
+- `-v` : Verbose , bzw Debug-Mode(scharfe präzise Klinge) 
 
 
 ## Wie benutzt man den Amboss zum Schmieden des Schwertes
-Bevor das `make` ausgeführt werden kann muss man `export=FMODE` ausführen.
+Bevor das make ausgeführt werden kann muss man export FMODE=interpreter/parsetree ausführen.
 
 Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 
@@ -64,17 +63,36 @@ Die Wirksamkeit eines Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
 Lexikalische Analyse
 -----------------------------------------
-- Identifier Integer-Literale		```check```
-- Zuweisungszeichen 			```check```
-- Kontrollstrukturen			```check```
+Identifier Integer-Literale				__```check```
+- Zuweisungszeichen			
+	-- Symbole für Grundrechenarten
+	-- Klammern					__```check```
+- Kontrollstrukturen
+	-- Keyowrds( 'wenn'|'wenn sonst'|'schleife')	__```check```
 
 Syntaktische Analyse
 -----------------------------------------
-- Erkennen korrekter Deklarationen	```check```
-- korrekte Folge von Wertzuweisungen	```check```
+- Erkennen korrekter Deklarationen			__```check```
+- korrekte Folge von Wertzuweisungen		
+    -- Vollständig geklammerte Expression	
+    -- Unvollständig geklammerte Expression		__```check```
 - Erkennen korrekter geschachtelter
-  Kontrollstrukturen			```check```
+  Kontrollstrukturen					__```check```
 
+Semantische Analyse
+-----------------------------------------
+- Erkennen mehrfacher Deklarationen
+  des gleichen Identifiers				__```check```
+- Typkonverting						__```check```
+
+Code-Generierung
+-----------------------------------------
+- Speicherung in geeigneter Datenstruktur		
+	- Erweiterung Syntaxbaum			__```check```
+
+Simulation Syntaxbaum
+-----------------------------------------
+- Ausdruck des Syntaxbaums				__```check```
 
 ## FAQ
 
