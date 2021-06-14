@@ -1,4 +1,4 @@
-# Compilerschmiede der Gruppe T4
+# Compilerschmiede T4
 
 Hier wurde an den heißen Brennöfen der ultimative Compiler geschmiedet!  
 Mit dabei waren:
@@ -37,7 +37,7 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 3. `	cc t4_parser_gen.tab.c lex.yy.c t4_F.c -o t4compiler -lm
       - Führbares Schwert(Kompilierer): `t4compiler` 
 
-## die verschiedenen Schwertangriffe
+## Verschiedenen Schwertangriffe
 - Am Ende einer Zeile müssen keine Semikolons oder sonstige Zeichen gesetzt werden. Ein `RETURN` reicht aus.
 - Das Schwert ist in der Lage die Grundrechenoperationen auszuführen(Addition, Subtraktion, Multiplikation und Division).
 - Variablen werden wie folgt deklariert: ` z = 12`
