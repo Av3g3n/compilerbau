@@ -62,7 +62,19 @@ Bei den Schleifen sollte man auf jeden Fall ein `TAB`  in der Zeile setzen, die 
 
 Die Wirksamkeit eines Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
-hier noch ein kleines listing was wir von angis tabelle haben ? 
+Lexikalische Analyse
+-----------------------------------------
+- Identifier Integer-Literale		```check```
+- Zuweisungszeichen 			```check```
+- Kontrollstrukturen			```check```
+
+Syntaktische Analyse
+-----------------------------------------
+- Erkennen korrekter Deklarationen	```check```
+- korrekte Folge von Wertzuweisungen	```check```
+- Erkennen korrekter geschachtelter
+  Kontrollstrukturen			```check```
+
 
 ## FAQ
 
