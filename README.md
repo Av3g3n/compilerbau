@@ -38,27 +38,28 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
       - Führbares Schwert(Kompilierer): `t4compiler` 
 
 ## Verschiedenen Schwertangriffe
-- Am Ende einer Zeile müssen keine Semikolons oder sonstige Zeichen gesetzt werden. Ein `RETURN` reicht aus.
 - Das Schwert ist in der Lage die Grundrechenoperationen auszuführen(Addition, Subtraktion, Multiplikation und Division).
-- Variablen werden wie folgt deklariert: ` z = 12`
-- Eine Variable kann mit `hau_raus VAR` ausgegeben werden
+- Variablen werden wie folgt deklariert: ` z = 12;`
+- Eine Variable kann mit `hau_raus VAR;` ausgegeben werden
 - IF-ELSE-Konditionen werden wie folgt benutzt: 	
 ```
-wenn(z==3):
-		CODE
-  sonst:
-		MORECODE	
+wenn(z==3){
+	CODE;
+}
+sonst {
+	MORECODE;
+}
 ```
 
 - Schleifen können auf die Folgende Art benutzt werden:
 
 ```
-schleife(z>0):
-	hau_raus z
-	z = z - 1
+schleife(z>0){
+	hau_raus z;
+	z = z - 1;
+}
 
 ```
-Bei den Schleifen sollte man auf jeden Fall ein `TAB`  in der Zeile setzen, die ausgeführt wird  da es sonst zu einem Fehlschlag kommt.
 
 Die Wirksamkeit eines Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
@@ -69,7 +70,7 @@ Identifier Integer-Literale				```check```
 	-- Symbole für Grundrechenarten
 	-- Klammern					```check```
 - Kontrollstrukturen
-	-- Keyowrds( 'wenn'|'wenn sonst'|'schleife')	```check```
+	-- Keyowrds( 'wenn'|'wenn sonst'|'schleife'|'global')	```check```
 
 Syntaktische Analyse
 -----------------------------------------
