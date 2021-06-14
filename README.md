@@ -37,7 +37,7 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 3. `	gcc t4_parser_gen.tab.c lex.yy.c t4_F.c -o t4compiler -lm
       - Führbares Schwert(Kompilierer): `t4compiler` 
 
-## Verschiedenen Schwertangriffe
+## Die verschiedenen Schwertangriffe
 - Das Schwert ist in der Lage die Grundrechenoperationen auszuführen(Addition, Subtraktion, Multiplikation und Division).
 - Variablen werden wie folgt deklariert: ` z = 12;`
 - Eine Variable kann mit `hau_raus VAR;` ausgegeben werden
