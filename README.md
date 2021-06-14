@@ -34,7 +34,7 @@ Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 2. `flex t4_analyzer.lex`  --> erstellt:
      - Lexikalischer Analysierer: `lex.yy.c`
        
-3. `	cc t4_parser_gen.tab.c lex.yy.c t4_F.c -o t4compiler -lm
+3. `	gcc t4_parser_gen.tab.c lex.yy.c t4_F.c -o t4compiler -lm
       - Führbares Schwert(Kompilierer): `t4compiler` 
 
 ## Verschiedenen Schwertangriffe
@@ -84,7 +84,6 @@ Semantische Analyse
 -----------------------------------------
 - Erkennen mehrfacher Deklarationen
   des gleichen Identifiers				```check```
-- Typkonvertierung					```check```
 
 Code-Generierung
 -----------------------------------------
