@@ -63,36 +63,36 @@ Die Wirksamkeit eines Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
 Lexikalische Analyse
 -----------------------------------------
-Identifier Integer-Literale				__```check```
+Identifier Integer-Literale				```check```
 - Zuweisungszeichen			
 	-- Symbole für Grundrechenarten
-	-- Klammern					__```check```
+	-- Klammern					```check```
 - Kontrollstrukturen
-	-- Keyowrds( 'wenn'|'wenn sonst'|'schleife')	__```check```
+	-- Keyowrds( 'wenn'|'wenn sonst'|'schleife')	```check```
 
 Syntaktische Analyse
 -----------------------------------------
-- Erkennen korrekter Deklarationen			__```check```
+- Erkennen korrekter Deklarationen			```check```
 - korrekte Folge von Wertzuweisungen		
     -- Vollständig geklammerte Expression	
-    -- Unvollständig geklammerte Expression		__```check```
+    -- Unvollständig geklammerte Expression		```check```
 - Erkennen korrekter geschachtelter
-  Kontrollstrukturen					__```check```
+  Kontrollstrukturen					```check```
 
 Semantische Analyse
 -----------------------------------------
 - Erkennen mehrfacher Deklarationen
-  des gleichen Identifiers				__```check```
-- Typkonverting						__```check```
+  des gleichen Identifiers				```check```
+- Typkonverting						```check```
 
 Code-Generierung
 -----------------------------------------
 - Speicherung in geeigneter Datenstruktur		
-	- Erweiterung Syntaxbaum			__```check```
+	- Erweiterung Syntaxbaum			```check```
 
 Simulation Syntaxbaum
 -----------------------------------------
-- Ausdruck des Syntaxbaums				__```check```
+- Ausdruck des Syntaxbaums				```check```
 
 ## FAQ
 
