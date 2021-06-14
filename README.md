@@ -1,53 +1,69 @@
 # Compilerschmiede der Gruppe T4
 
-Hier wird an den heißen Brennöfen der ultimative Compiler geschmiedet!  
-Mit dabei sind:  
+Hier wurde an den heißen Brennöfen der ultimative Compiler geschmiedet!  
+Mit dabei waren:
+* Bossschmied Jakob
 * Daniel (Schmied1)  
 * Tobias (Schmied2)  
 * Florian (Schmied3)  
 * Jens (Schmied4)  
-* Jakob (Schmied5)  
+
 
 ## Wie benutzt man dieses Schwert?
 
 > Nur mit Muskeln kommt man halt nicht weiter nh
 
-Die guten Angriffe  werden mit ` FIN=example FOUT=myexe make` ausgeführt. Nun sollte ein handlebares Schwert `myexe` für euch zum Kampf bereitgestellt worden sein. Aktiviert es mit `./myexe` und führt unten gelistete Angriffe aus.
-Haltet euch mit `FIN=example FOUT=myexe make clean` den Rücken für weitere neue Schwertgriffe frei.
+Das Schwert kann mit folgenden Kommandos auf der Kommandozeile gezogen werden:
+- ` ./t4compiler`
+
+Folgende zusätzliche Optionen können die Präzision der Klinge verbessern:
+- `-h` : Zeigt alle verfügbaren Optionen
+- `-v` : Verbose , bzw Debug-Mode(scharfe präzise Klinge)
+- `-f FILE` : Einlesen einer Datei 
+
 
 ## Wie benutzt man den Amboss zum Schmieden des Schwertes
+Bevor das `make` ausgeführt werden kann muss man `export=FMODE` ausführen.
+
 Das `make` führt folgende Schritte zum Erstellen des Kompilierers durch.
 
-1. `bison -d example.y` --> erstellt:
-    - Headerfile: `example.tab.h`
+1. `bison -d t4_parser_gen.y` --> erstellt:
+    - Headerfile: `t4_parser_gen.tab.h`
     - Parser-Quelltext/Syntax Analysierer, wie yyparse: `example.tab.c`
 
-2. `flex example.lex`  --> erstellt:
+2. `flex t4_analyzer.lex`  --> erstellt:
      - Lexikalischer Analysierer: `lex.yy.c`
        
-3. `cc example.tab.c lex.yy.c -o myexe` --> erstellt:
-      - Ausführbare Kompilierer: `myexe`
+3. `	cc t4_parser_gen.tab.c lex.yy.c t4_F.c -o t4compiler -lm
+      - Führbares Schwert(Kompilierer): `t4compiler` 
 
-## Aktuell erlernte Angriffe
-Das Schwert ist in der Lage verschiedene Mathematische Angriffe auf Integerzahlen durchzuführen, hierzu gehören die Grundoperationen wie:
-- Addition(+)
-- Subtraktion(-)
-- Multiplikation(*)
-- Division(/)
+## die verschiedenen Schwertangriffe
+- Am Ende einer Zeile müssen keine Semikolons oder sonstige Zeichen gesetzt werden. Ein `RETURN` reicht aus.
+- Das Schwert ist in der Lage die Grundrechenoperationen auszuführen(Addition, Subtraktion, Multiplikation und Division).
+- Variablen werden wie folgt deklariert: ` z = 12`
+- Eine Variable kann mit `hau_raus VAR` ausgegeben werden
+- IF-ELSE-Konditionen werden wie folgt benutzt: 	
+```
+wenn(z==3):
+		CODE
+  sonst:
+		MORECODE	
+```
 
-Die Wirksamkeit des Angriffes erscheint dann in der darauf folgenden Zeile.
+- Schleifen können auf die Folgende Art benutzt werden:
+
+```
+schleife(z>0):
+	hau_raus z
+	z = z - 1
+
+```
+Bei den Schleifen sollte man auf jeden Fall ein `TAB`  in der Zeile setzen, die ausgeführt wird  da es sonst zu einem Fehlschlag kommt.
+
+Die Wirksamkeit eines Angriffes erscheint dann in der darauf folgenden Zeile.
 ## Fortschritt
-
-- [x] Flex benutzt
-- [x] Bison benutzt
-- [ ] Full Integration of the Jugend
-- [ ] Wat Produktives gemacht...
+hier noch ein kleines listing was wir von angis tabelle haben ? 
 
 ## FAQ
 
-### Es kommt keine "myexe" raus und nirgendwo steht ein Fehler?
 
-In dem Fall tritt der Fehler beim Kompilieren auf.  
-Hierzu einfach mal in **build.sh** sich die Zeile mit **gcc** raussuchen und dort  
-`gcc lex.yy.c -o myexe 2> /dev/null` mit `gcc lex.yy.c -o myexe` austauschen.
-Wem das zu aufwändig ist, darf gerne einen Debugmodus schreiben. :D
