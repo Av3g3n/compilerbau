@@ -30,7 +30,7 @@ void nodetest(
 NodeType *p,
 int c
 ){
-	char* s;
+		char* s;
 	char word[20]; 
 	strcpy (word, "???"); 
 	s = word;
@@ -47,13 +47,19 @@ int c
 			switch(p->opr.oper){
 				case WHILE: s="schleife";
 					break;
+				case GLOBAL: s = "GLOBAL";
+					break;
+				case FUN:
+					return;break;
 				case IF: s="wenn";
 					break;
 				case PRINT: s="hau_raus";
 					break;
-				case '\n': s= "[  ]";
+				case '\n': s= "[--]";
 					break;
 				case '=': s="[=]";
+					break;
+				case ';': s="[;]";
 					break;
 				case UMINUS: s="[_]"; break;
 				case '+':  s="[+]";
@@ -87,7 +93,7 @@ int c
 	
 	if(line==0&&c==0)
 	{	
-		if(s!="[  ]"){
+		if(s!="[--]"){
 			draw(s,line,c);
 			c--;
 		}
