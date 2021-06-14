@@ -83,7 +83,7 @@ Semantische Analyse
 -----------------------------------------
 - Erkennen mehrfacher Deklarationen
   des gleichen Identifiers				```check```
-- Typkonverting						```check```
+- Typkonvertierung					```check```
 
 Code-Generierung
 -----------------------------------------
