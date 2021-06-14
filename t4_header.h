@@ -9,40 +9,43 @@ extern int FUNEVAL;
 // union for difference between int or string for later
 typedef struct Dict {
    int value;
-   char* key;
+   char *key;
    struct Dict* next;
 } Dict;
 
-extern Dict* head;
-extern Dict* tail;
+extern Dict *head;
+extern Dict *tail;
 
-Dict* dict_next(Dict*); // NEEDED?
-int dict_getValue(const char* restricted);
-void dict_add(int, char*);
-Dict* dict_keyExists(const char* restricted);
+Dict* dict_next(Dict *);
+int dict_getValue(const char * restrict);
+void dict_add(int, char *);
+void dict_remove(char *);
+Dict* dict_keyExists(const char * restrict);
 void free_dict();
-void printDict(Dict*, int);
+void printDict(Dict *, int);
 
 /* S Y M B O L T A B L E */
 typedef struct SymT {
-	struct Dict* dhead;
-	struct Dict* dtail;
-        struct SymT* ptr;
+	struct Dict *dhead;
+	struct Dict *dtail;
+   struct SymT *ptr;
 } SymT;
 
-extern SymT* scope;
-extern SymT* globalscope;
+extern SymT *scope;
+extern SymT *globalscope;
 
 void new_scope();
-int scope_getValue(const char* restricted);
-void scope_add(int, char*);
-Dict* scope_keyExists(const char* restricted);
+void globalscope_add(int, char *);
+Dict* globalscope_keyExists(const char * restrict);
+int scope_getValue(const char * restrict);
+void scope_add(int, char *);
+Dict* scope_keyExists(const char * restrict);
 void free_scope();
 void printFromFullScope();
 
 /* D E B U G  M O D E */
 extern int DEBUG;
-int debug(const char*, ...);
+int debug(const char *, ...);
 
 /* H E L P  M E S S A G E */
 void print_help();
@@ -63,13 +66,21 @@ typedef struct {
 } ConstantNode;
 
 typedef struct {
-   char* str;
+   char *str;
 } VariableNode;
 
-typedef struct {
-   char* str1;
-   char* str2;
+typedef struct FunctionNode {
+   char *str;
+   struct NodeTypeTag *func[1];
 } FunctionNode;
+
+typedef struct funcdict {
+   char *str;
+   struct NodeTypeTag *fun;
+   Dict *dhead;
+   Dict *dtail;
+   struct funcdict *ptr;
+} funcdict;
 
 typedef struct {
    int oper;
@@ -88,22 +99,17 @@ typedef struct NodeTypeTag {
 } NodeType;
 
 NodeType* opr(int, int, ...);
-NodeType* var(char*);
-NodeType* fun(NodeType*, NodeType*, NodeType*);
+NodeType* var(char *);
+NodeType* fun(char *, NodeType *, NodeType *);
 NodeType* con(int);
-void freeNode(NodeType*);
-int ex(NodeType*);
+void freeNode(NodeType *);
+int ex(NodeType *);
+
+/* S T D O U T - C O L O R ? */
+
+extern int ttyout;
+void check_stdout_color_();
 
 /* O T H E R */
-
-extern int tabCount; // NEEDED?
-
-/* T E M P O R A R Y  F U N C T I O N S ? */
-void prompt_in(); // NEEDED?
-void prompt_out(); // NEEDED?
-int trim_char(char* restrict, const char* restrict, const char); // NEEDED?
-int copy_until_char(char* restrict, const char* restrict, const char); // NEEDED?
-void colorize_err_out(); // NEEDED?
-void reset_err_color(); // NEEDED?
 
 #endif

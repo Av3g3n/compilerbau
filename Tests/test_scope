@@ -1,0 +1,15 @@
+x = 10;
+y = 20;
+
+wenn(x==y-x){
+   hau_raus x^2;
+   myvar=x^2;
+
+   GLOBAL y = 30;
+}
+
+GLOBAL x = 50;
+
+y = 200;
+
+x = 500;

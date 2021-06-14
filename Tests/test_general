@@ -1,0 +1,47 @@
+// Comment
+
+GLOBAL hundred = 100;
+z = 5;
+wenn(z!=5){
+	hau_raus z;
+}
+sonst {
+	hau_raus z^2;
+}
+
+schleife(z>0){
+	hau_raus z;
+	z = z - 1;
+}
+
+wenn(z==0){
+	x = 10;
+	schleife(x>0){
+		hau_raus x*10;
+		x = x - 1;
+	}
+	wenn(x!=0){
+		hau_raus 10/x;
+	}
+	sonst {
+		myvar = 100;
+		sum = 0;
+		schleife(myvar>0){
+			sum = sum + myvar;
+			myvar = myvar - 1;
+		}
+		hau_raus sum;
+	}
+}
+
+GLOBAL z = hundred;
+
+hau_raus hundred;
+hau_raus z;
+
+myvar = 100;
+
+wenn(myvar==100){
+	hau_raus myvar^2;
+}
+hau_raus (100+10)*1+1;
