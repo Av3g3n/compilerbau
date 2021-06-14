@@ -42,8 +42,6 @@ int FUNEVAL;
 %right '^'
 %type <node_ptr> statement expression condition cond_list stmt_list param_list expr_list function
 
-%define parse.error verbose
-
 %%
 program:
 	/* empty */
@@ -88,7 +86,7 @@ statement:
 	| WHILE '(' condition ')' '{' stmt_list '}'									{ 
 																									$$ = opr(WHILE, 2, $3, $6);
 																								}
-	| IF '(' condition ')' '{' stmt_list %prec IFX '}'							{ 
+	| IF '(' condition ')' '{' stmt_list '}' %prec IFX 						{ 
 																									//debug("GRAMMAR: statement --> IF ...\n");
 																									$$ = opr(IF, 2, $3, $6);
 																								}
@@ -190,13 +188,13 @@ void dict_add(int val, char* str){
    if(tail != NULL){
       tail->next = dict;
       tail = dict;
-		debug("FUN: dict_add(%d,%s) as tail\n", val, str);
+		debug("FUN: dict_add(%d,%s) as tail in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
    } else {
       head = dict;
       tail = dict;
 		scope->dhead = head;
 		scope->dtail = tail;
-		debug("FUN: dict_add(%d,%s) as head\n", val, str);
+		debug("FUN: dict_add(%d,%s) as head in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
    }
 }
 
@@ -212,13 +210,21 @@ void dict_remove(char* str){
 	else {
 		while(current != NULL){
 			Dict* curnext = dict_next(current);
-			if(curnext == NULL) return;
 			if(strcmp(str, curnext->key) == 0){
-				current->next = curnext->next;
+				current->next = dict_next(curnext);
+				if(curnext == tail){
+					tail = current;
+					return;
+					debug("FUN: dict_remove(%s) successfull (tail)\n", str);
+				}
+				else {
+					debug("FUN: dict_remove(%s) successfull (between)\n", str);
+				}
 				free(curnext);
 				curnext = NULL;
-				debug("FUN: dict_remove(%s) successfull (between or tail)", str);
+				return;
 			}
+			current = dict_next(current);
 		}
 	}
 }
@@ -290,7 +296,7 @@ void globalscope_add(int val, char* str){
 	Dict *temp2 = scope_keyExists(str);
 	debug("FUN: globalscope_add(%d, %s) global: %p, scope: %p\n", val, str, temp, temp2);
 	if(temp2 != NULL && temp != temp2){
-		debug("FUN: globalscope_add remove dict entry  with %s\n", str);
+		debug("FUN: globalscope_add remove dict entry with %s\n", str);
 		dict_remove(str);
 	}
 	if(temp == NULL){
@@ -349,9 +355,10 @@ int scope_getValue(const char* restrict str){
 }
 
 Dict* scope_keyExists(const char* restrict str){
+	debug("FUN: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, scope->dhead, head);
 	SymT* current = scope;
 	while(current != NULL){
-		debug("FUN: scope_keyExists, HEAD: %p | SCOPEHEAD: %p\n", head, current->dhead);
+		debug("FUN: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, current->dhead, head);
 		head = current->dhead;
 		Dict* temp = dict_keyExists(str);
 		if(temp == NULL){
@@ -363,6 +370,7 @@ Dict* scope_keyExists(const char* restrict str){
 			return temp;
 		}
 	}
+	head = scope->dhead;
 	return NULL;
 }
 
