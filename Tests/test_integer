@@ -1,0 +1,22 @@
+test1 = 1000000; //mille
+hau_raus test1;
+
+test2 = 10000000; //10mille
+hau_raus test2;
+
+test3 = 100000000; //100mille
+hau_raus test3;
+
+test4 = 1000000000; //1milliarde
+hau_raus test4;
+
+test5 = 1000000000000; //bille
+hau_raus test5;
+
+
+test6 = 1000000000000000; //billiarde
+hau_raus test6;
+
+
+test7 = 1000000000000000000; //trilliarde
+hau_raus test7;
