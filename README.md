@@ -2,7 +2,8 @@
 
 Hier wurde an den heißen Brennöfen der ultimative Compiler geschmiedet!  
 Mit dabei waren:
-* Bossschmied Jakob
+* Bossschmied Jakob 
+	```" Ob mirs gelang, bei Tag und Nacht, mein eignes Glück zu schmieden? Oft hab’ ich andre froh gemacht, mein Lohn war Schweiß und Frieden. "```
 * Daniel (Schmied1)  
 * Tobias (Schmied2)  
 * Florian (Schmied3)  
