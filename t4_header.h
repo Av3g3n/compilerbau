@@ -19,7 +19,7 @@ extern Dict *tail;
 Dict* dict_next(Dict *);
 int dict_getValue(const char * restrict);
 void dict_add(int, char *);
-void dict_remove(char *);
+int dict_remove(char *);
 Dict* dict_keyExists(const char * restrict);
 void free_dict();
 void printDict(Dict *, int);
@@ -43,9 +43,19 @@ Dict* scope_keyExists(const char * restrict);
 void free_scope();
 void printFromFullScope();
 
-/* D E B U G  M O D E */
-extern int DEBUG;
-int debug(const char *, ...);
+/* D E B U G  V A R S C O P E */
+void _debug_varscope();
+
+/* L O G G I N G */
+extern int LOG;
+int logging(int, const char *, ...);
+#define INFO 1
+#define DEBUG 2
+#define ANALYZER 10
+#define GRAMMAR 20
+#define VARSCOPE 30
+#define TREE 40
+#define INTPRET 50
 
 /* E R R O R  H A N D L I N G */
 void yyerror(const char *);

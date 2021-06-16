@@ -11,7 +11,7 @@ int ex(NodeType *p) {
    if (!p) return 0;
    switch(p->type) {
       case type_constant:     return p->con.value;
-      case type_variable:     //debug("INTERPRETER: type_variable: %s\n", p->var.str);
+      case type_variable:     logging(DEBUG+INTPRET, "INTERPRETER: type_variable: %s\n", p->var.str);
                               return scope_getValue(p->var.str);
       case type_function:     // FUTURE IMPLEMENTATION
                               return 0;
@@ -26,7 +26,7 @@ int ex(NodeType *p) {
                                  ex(p->opr.op[1]);
                               free_scope();
                               return 0;
-         case IF:             //debug("INTERPRETER: IF\n");
+         case IF:             logging(DEBUG+INTPRET, "INTERPRETER: IF\n");
                               if (ex(p->opr.op[0])){
                                  new_scope();
                                  ex(p->opr.op[1]);
@@ -44,17 +44,17 @@ int ex(NodeType *p) {
                                  printf("%d\n", ex(p->opr.op[0]));
                               return 0;
          case GLOBAL:         globalscope_add(ex(p->opr.op[1]), p->opr.op[0]->var.str);
-                              debug("\n\n>>> PRINTFULLSCOPE GLOBAL <<<\n\n");
+                              logging(DEBUG+INTPRET,"\n\n>>> PRINTFULLSCOPE GLOBAL <<<\n\n");
                               printFromFullScope();
                               return scope_getValue(p->opr.op[0]->var.str);
-         case ';':            // works right?
-                              //debug("INTERPRETER: \\n\n");
-                              ex(p->opr.op[0]); return ex(p->opr.op[1]);
-         case '=':            //debug("INTERPRETER: %s = %d\n", p->opr.op[0]->var.str, ex(p->opr.op[1]));
+         case BYE:            exit(EXIT_SUCCESS);
+         case ';':            ex(p->opr.op[0]); return ex(p->opr.op[1]);
+         case '=':            logging(INFO+INTPRET,"INTERPRETER: %s = %d\n", p->opr.op[0]->var.str, ex(p->opr.op[1]));
                               scope_add(ex(p->opr.op[1]), p->opr.op[0]->var.str);
-                              debug("\n\n>>> PRINTFULLSCOPE = <<<\n\n");
+                              logging(DEBUG+INTPRET,"\n\n>>> PRINTFULLSCOPE = <<<\n\n");
                               printFromFullScope();
-                              //debug("INTERPRETER: GETVALUE --> %d\n", scope_getValue(p->opr.op[0]->var.str));
+                              _debug_varscope();
+                              logging(DEBUG+INTPRET,"INTERPRETER: GETVALUE --> %d\n", scope_getValue(p->opr.op[0]->var.str));
                               return scope_getValue(p->opr.op[0]->var.str);
          case ',':            // works ?
                               ex(p->opr.op[0]); return ex(p->opr.op[1]);

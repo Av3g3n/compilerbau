@@ -9,6 +9,7 @@ print			(H|h)(A|a)(U|u)_(R|r)(A|a)(U|u)(S|s)
 bad_chars 	([äÄöÖüÜß])
 function		(F|f)(U|u)(N|n)(K|k)(T|t)(I|i)(O|o)(N|n)
 showenv		(Z|z)(E|e)(I|i)(G|g)_(V|v)(A|a)(R|r)(S|s)
+exit			(A|a)(F|f)(K|k)
 
 %{ 
 #include <stdlib.h>
@@ -28,6 +29,7 @@ int line_number = 1;
 {print}		return PRINT;
 {function}	return FUN;
 {showenv}	printFromFullScope();
+{exit}		return BYE;
 \>=			return GE;
 \<=			return LE;
 ==				return EQ;
@@ -39,7 +41,7 @@ int line_number = 1;
 	/* ----- V A R I A B L E S ----- */
 
 ({letter}|_)({letter}|{digit}|_)*	{
-													//debug("(l.%d) Variable detected: \"%s\", Length is: %d\n", line_number, yytext, yyleng);
+													logging(DEBUG+ANALYZER,"ANALYZER: (l.%d) Variable detected: \"%s\", Length is: %d\n", line_number, yytext, yyleng);
 													yylval.var_val = strdup(yytext);
 													return VARIABLE;
 												}
@@ -47,7 +49,7 @@ int line_number = 1;
 	/* -------- V A L U E S -------- */
 
 {number}										{
-													//debug("(l.%d) Integer detected: %d\n", line_number, atoi(yytext));
+													logging(DEBUG+ANALYZER,"ANALYZER: (l.%d) Integer detected: %d\n", line_number, atoi(yytext));
 													yylval.int_val = atoi(yytext);
 													return INTEGER;
 												}
@@ -55,7 +57,7 @@ int line_number = 1;
 	/* ------ O P E R A T O R ------ */
 
 [-+()=<>?:/*^,;{}]								{
-													//debug("(l.%d) Operator detected: %c\n", line_number, *yytext);
+													logging(DEBUG+ANALYZER,"ANALYZER: (l.%d) Operator detected: %c\n", line_number, *yytext);
 													char tmp = *yytext;
 													return tmp;
 												}
@@ -67,14 +69,14 @@ int line_number = 1;
 	/* ------- N E W L I N E ------- */
 
 \n 											{
-													debug("(l.%d) Newline detected\n", line_number);
+													logging(DEBUG+ANALYZER,"ANALYZER: (l.%d) Newline detected\n", line_number);
 													line_number++;
 												}
 
 	/* ------ C O M M E N T S ------ */
 
 \/\/.*										{
-													//debug("(l.%d) Comment detected\n", line_number);
+													logging(DEBUG+ANALYZER,"ANALYZER: (l.%d) Comment detected\n", line_number);
 												}
 
 	/* -------- E R R O R S -------- */

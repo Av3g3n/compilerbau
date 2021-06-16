@@ -14,7 +14,7 @@ SymT *scope = NULL;
 SymT *globalscope = NULL;
 funcdict *func = NULL;
 int ttyout;
-int DEBUG;
+int LOG;
 int FUNEVAL;
 %}
 
@@ -30,7 +30,7 @@ int FUNEVAL;
 %start program
 %token <int_val> INTEGER
 %token <var_val> VARIABLE
-%token IF ELSE PRINT WHILE AND OR FUN GLOBAL
+%token IF ELSE PRINT WHILE AND OR FUN GLOBAL BYE
 %nonassoc IFX
 %nonassoc ELSE
 %precedence '='
@@ -72,14 +72,11 @@ param_list:
 	;
 
 statement:
-	';'																						{
-																									//debug("statement --> \\n\n"); 
-																									$$ = opr(';', 2, NULL, NULL); 
-																								}
+	';'																						{ $$ = opr(';', 2, NULL, NULL); }
 	| expression ';'			    														{ $$ = $1; }
 	| '(' condition ')' ';'																{ $$ = $2; }
 	| VARIABLE '=' expression ';'														{ 
-																									//debug("GRAMMAR: statement --> %s = expression\n", $1);
+																									logging(DEBUG+GRAMMAR,"GRAMMAR: statement --> %s = expression\n", $1);
 																									$$ = opr('=', 2, var($1), $3); 
 																								}
 	| PRINT expression ';'																{ $$ = opr(PRINT, 1, $2); }
@@ -87,23 +84,24 @@ statement:
 																									$$ = opr(WHILE, 2, $3, $6);
 																								}
 	| IF '(' condition ')' '{' stmt_list '}' %prec IFX 						{ 
-																									//debug("GRAMMAR: statement --> IF ...\n");
+																									logging(DEBUG+GRAMMAR,"GRAMMAR: statement --> IF ...\n");
 																									$$ = opr(IF, 2, $3, $6);
 																								}
 	| IF '(' condition ')' '{' stmt_list '}' ELSE '{' stmt_list '}'		{ $$ = opr(IF, 3, $3, $6, $10); }
 	| GLOBAL VARIABLE '=' expression ';'											{ $$ = opr(GLOBAL, 2, var($2), $4); }
+	| BYE ';'																				{ $$ = opr(BYE, 2, NULL, NULL); }
 	| error ';'																				{ yyclearin; yyerrok; }
 	| error '=' expression ';'															{ yyclearin; yyerrok; }
 	;
 
 stmt_list:
 	statement stmt_list										{
-																		//debug("GRAMMAR: stmt_list --> tabs statement stmt_list\n");
+																		logging(DEBUG+GRAMMAR,"GRAMMAR: stmt_list --> tabs statement stmt_list\n");
 																		$$ = opr(';', 2, $1, $2);
 																	}
 	| statement													{
 																		// comes first
-																		//debug("GRAMMAR: stmt_list --> tabs statement\n");
+																		logging(DEBUG+GRAMMAR,"GRAMMAR: stmt_list --> tabs statement\n");
 																		$$ = $1; 
 																	}
 	;
@@ -125,14 +123,8 @@ cond_list:
 	;
 
 expression:
-	INTEGER															{
-																			//debug("expression --> INTEGER\n\tVALUE: %d\n", $1);
-																			$$ = con($1);
-																		}
-	| VARIABLE				   									{ 
-																			//debug("expression --> VARIABLE\n\tVALUE: %s\n", $1);
-																			$$ = var($1);
-																		}
+	INTEGER															{ $$ = con($1); }
+	| VARIABLE				   									{ $$ = var($1); }
 	| '-' expression %prec UMINUS								{ $$ = opr(UMINUS, 1, $2); }
 	| expression '+' expression								{ $$ = opr('+', 2, $1, $3); }
 	| expression '-' expression								{ $$ = opr('-', 2, $1, $3); }
@@ -173,7 +165,7 @@ int dict_getValue(const char* restrict str){
 	Dict* temp = dict_keyExists(str);
 	if(temp != NULL){
 		FUNEVAL = 1;
-		debug("FUN: dict_getValue(%s) --> %d\n", str, temp->value);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: dict_getValue(%s) --> %d\n", str, temp->value);
 		return temp->value;
 	}
 	FUNEVAL = 0;
@@ -185,27 +177,31 @@ void dict_add(int val, char* str){
    dict->value = val;
    dict->key = str;
 	dict->next = NULL;
+	logging(DEBUG+VARSCOPE,"VARSCOPE: dict_add(%d,%s) tail adress %p\n", val, str, tail); 
    if(tail != NULL){
       tail->next = dict;
       tail = dict;
-		debug("FUN: dict_add(%d,%s) as tail in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: dict_add(%d,%s) as tail in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
    } else {
       head = dict;
       tail = dict;
-		scope->dhead = head;
-		scope->dtail = tail;
-		debug("FUN: dict_add(%d,%s) as head in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: dict_add(%d,%s) as head in scope: %p with scope-head: %p of head: %p\n", val, str, scope, scope->dhead, head);
    }
 }
 
-void dict_remove(char* str){
+int dict_remove(char* str){
 	Dict* current = head;
-	if(current == NULL) return;
+	if(current == NULL) return 1;
 	if(strcmp(str, current->key) == 0){
+		if(current == tail){
+			logging(DEBUG+VARSCOPE,"VARSCOPE: dict_remove with head == tail\n");
+			tail = NULL;
+		}
 		head = current->next;
 		free(current);
 		current = NULL;
-		debug("FUN: dict_remove(%s) successfull (head)\n", str);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: dict_remove(%s) successfull (head)\n", str);
+		return 0;
 	}
 	else {
 		while(current != NULL){
@@ -214,27 +210,31 @@ void dict_remove(char* str){
 				current->next = dict_next(curnext);
 				if(curnext == tail){
 					tail = current;
-					return;
-					debug("FUN: dict_remove(%s) successfull (tail)\n", str);
+					logging(DEBUG+VARSCOPE,"VARSCOPE: dict_remove(%s) successfull (tail)\n", str);
 				}
 				else {
-					debug("FUN: dict_remove(%s) successfull (between)\n", str);
+					logging(DEBUG+VARSCOPE,"VARSCOPE: dict_remove(%s) successfull (between)\n", str);
+					curnext->next = NULL;
 				}
 				free(curnext);
 				curnext = NULL;
-				return;
+				return 0;
 			}
-			current = dict_next(current);
+			else { 
+				current = dict_next(current);
+			}
 		}
 	}
+	_debug_varscope();
+	return -1;
 }
 
 Dict* dict_keyExists(const char* restrict str){
-	debug("FUN: dict_keyExists(%s)\n", str);
+	logging(DEBUG+VARSCOPE,"VARSCOPE: dict_keyExists(%s)\n", str);
 	Dict* current = head;
    while(current != NULL){
       if(strcmp(current->key, str) == 0){
-			debug("FUN: dict_keyExists returns existing key\n");
+			logging(DEBUG+VARSCOPE,"VARSCOPE: dict_keyExists returns existing key\n");
 			return current;
       } else {
          current = dict_next(current);
@@ -270,7 +270,7 @@ void printDict(Dict* ptr, int i){
 // ------------------------
 
 void new_scope(){
-	debug("FUN: new_scope()\n");
+	logging(DEBUG+VARSCOPE,"VARSCOPE: new_scope()\n");
 	SymT* symt = (SymT*) malloc(sizeof(SymT));
 	if(scope != NULL){
 		scope->dhead = head;
@@ -279,7 +279,7 @@ void new_scope(){
 		scope = symt;
 		head = NULL;
 		tail = NULL;
-		debug("FUN: New Scope %p existing Scope %p\n", scope, scope->ptr);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: New Scope %p existing Scope %p\n", scope, scope->ptr);
 	}
 	else {
 		globalscope = symt;
@@ -287,17 +287,37 @@ void new_scope(){
 		SymT* symt2 = (SymT*) malloc(sizeof(SymT));
 		scope = symt2;
 		scope->ptr = globalscope;
-		debug("FUN: New Scope %p Global Scope %p\n", scope, globalscope);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: New Scope %p Global Scope %p\n", scope, globalscope);
 	}
 }
 
 void globalscope_add(int val, char* str){
 	Dict *temp = globalscope_keyExists(str);
 	Dict *temp2 = scope_keyExists(str);
-	debug("FUN: globalscope_add(%d, %s) global: %p, scope: %p\n", val, str, temp, temp2);
+	logging(DEBUG+VARSCOPE,"VARSCOPE: globalscope_add(%d, %s) global_exist: %p, scope_exist: %p\n", val, str, temp, temp2);
 	if(temp2 != NULL && temp != temp2){
-		debug("FUN: globalscope_add remove dict entry with %s\n", str);
-		dict_remove(str);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: globalscope_add remove dict entry with %s\n", str);
+		SymT* curscope = scope;
+		while(curscope != NULL){
+			head = curscope->dhead;
+			tail = curscope->dtail;
+			int res = dict_remove(str);
+			if(res == 0){
+				break;
+			}
+			else if(res == -1){
+				yyerror("dict_remove failed?!\n");
+			}
+			else {
+				curscope = curscope->ptr;
+			}
+		}
+		printf("HERE\n");
+		curscope->dhead = head;
+		curscope->dtail = tail;
+		head = scope->dhead;
+		tail = scope->dtail;
+		_debug_varscope();
 	}
 	if(temp == NULL){
 		Dict* ndict = malloc(sizeof(Dict *));
@@ -307,38 +327,43 @@ void globalscope_add(int val, char* str){
 		if(globalscope->dtail != NULL){
 			globalscope->dtail->next = ndict;
 			globalscope->dtail = ndict;
-			debug("FUN: globalscope_add as tail\n");
+			logging(DEBUG+VARSCOPE,"VARSCOPE: globalscope_add as tail\n");
 		} 
 		else {
 			globalscope->dhead = ndict;
 			globalscope->dtail = ndict;
-			debug("FUN: globalscope_add as head\n");
+			logging(DEBUG+VARSCOPE,"VARSCOPE: globalscope_add as head\n");
 		}
 	}
 	else {
 		temp->value = val;
-		debug("FUN: globalscope_add update\n");
+		logging(DEBUG+VARSCOPE,"VARSCOPE: globalscope_add update\n");
 	}
+	_debug_varscope();
 }
 
 Dict* globalscope_keyExists(const char* restrict str){
-	debug("FUN: Inside globalscope_keyExists()\n");
+	logging(DEBUG+VARSCOPE,"VARSCOPE: Inside globalscope_keyExists(), head %p vs globalhead %p\n", head, globalscope->dhead);
 	Dict *storhead = head;
 	head = globalscope->dhead;
 	Dict* temp = dict_keyExists(str);
 	head = storhead;
-	debug("FUN: Leaving globalscope_keyExists()\n");
+	logging(DEBUG+VARSCOPE,"VARSCOPE: Leaving globalscope_keyExists(), head %p\n", head);
 	return temp;
 }
 
 void scope_add(int val, char* str){
 	Dict* temp = scope_keyExists(str);
 	if(temp == NULL){
-		debug("FUN: scope_add adds new key\n");
+		logging(DEBUG+VARSCOPE,"VARSCOPE: scope_add adds new key, scope %p, scopehead %p, scopetail %p\n", scope, scope->dhead, scope->dtail);
+		head = scope->dhead;
+		tail = scope->dtail;
 		dict_add(val, str);
+		scope->dhead = head;
+		scope->dtail = tail;
 	}
 	else {
-		debug("FUN: scope_add updates value\n");
+		logging(DEBUG+VARSCOPE,"VARSCOPE: scope_add updates value\n");
 		temp->value = val;
 	}
 }
@@ -346,7 +371,7 @@ void scope_add(int val, char* str){
 int scope_getValue(const char* restrict str){
 	Dict* temp = scope_keyExists(str);
 	if(temp != NULL){
-		debug("FUN: scope_getValue returns real value\n");
+		logging(DEBUG+VARSCOPE,"VARSCOPE: scope_getValue returns real value\n");
 		FUNEVAL = 1;
 		return temp->value;
 	}
@@ -355,27 +380,28 @@ int scope_getValue(const char* restrict str){
 }
 
 Dict* scope_keyExists(const char* restrict str){
-	debug("FUN: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, scope->dhead, head);
+	logging(DEBUG+VARSCOPE,"VARSCOPE: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, scope->dhead, head);
 	SymT* current = scope;
 	while(current != NULL){
-		debug("FUN: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, current->dhead, head);
+		logging(DEBUG+VARSCOPE,"VARSCOPE: scope_keyExists(%s), scope: %p, scopehead: %p, head: %p\n", str, scope, current->dhead, head);
 		head = current->dhead;
 		Dict* temp = dict_keyExists(str);
 		if(temp == NULL){
 			current = current->ptr;
 		}
 		else {
-			debug("FUN: scope_keyExists returns existing key\n");
+			logging(DEBUG+VARSCOPE,"VARSCOPE: scope_keyExists returns existing key\n");
 			head = scope->dhead;
 			return temp;
 		}
 	}
+	logging(DEBUG+VARSCOPE,"VARSCOPE: key does not exist yet, scope: %p, head %p\n", scope, scope->dhead);
 	head = scope->dhead;
 	return NULL;
 }
 
 void free_scope(){
-	debug("FUN: Inside free_scope()\n");
+	logging(DEBUG+VARSCOPE,"VARSCOPE: Inside free_scope()\n");
 	if(!scope) return;
 	SymT* temp = scope;
 	if(scope->ptr == NULL){
@@ -392,16 +418,24 @@ void free_scope(){
 
 void printFromFullScope(){
 	int i = 0;
-	debug("Head0: %p\n", head);
+	logging(INFO,"Head0: %p\n", head);
 	printDict(head, i);
 	if(!scope->ptr) return;
 	SymT* current = scope->ptr;
 	while(current != NULL){
 		i++;
-		debug("Head%d: %p\n", i, current->dhead);
+		logging(INFO,"Head%d: %p\n", i, current->dhead);
 		printDict(current->dhead, i);
 		current = current->ptr;
 	}
+}
+
+//
+/**/
+//
+
+void _debug_varscope(){
+	logging(DEBUG+VARSCOPE,"VARSCOPE:\n\thead %p, tail %p\n\tscope %p, scopehead %p, scopetail %p\n\tgscope %p, ghead %p, gtail %p\n", head, tail, scope, scope->dhead, scope->dtail, globalscope, globalscope->dhead, globalscope->dtail);
 }
 
 // -------------------------------------------------------
@@ -409,7 +443,7 @@ void printFromFullScope(){
 // -------------------------------------------------------
 
 NodeType* con(int value) {
-	//debug("Function \"con\" parameter: %d\n", value);
+	logging(DEBUG+TREE,"TREEE: con(%d)\n", value);
    NodeType *p;
    if ((p = malloc(sizeof(NodeType))) == NULL)
       yyerror("out of memory");
@@ -419,7 +453,7 @@ NodeType* con(int value) {
 }
 
 NodeType* var(char *str) {
-	//debug("Function \"var\" parameter: %s\n", str);
+	logging(DEBUG+TREE,"TREE: var(%s)\n", str);
    NodeType *p;
    if ((p = malloc(sizeof(NodeType))) == NULL)
       yyerror("out of memory");
@@ -478,12 +512,13 @@ void yyerror(const char *err){
 		fprintf(stderr, "%s\n", err);
 }
 
-// ---------------------
-/* D E B U G  M O D E */
-// ---------------------
+// ----------------
+/* L O G G I N G */
+// ----------------
 
-int debug(const char* str, ...){
-	if(DEBUG){
+int logging(int level, const char* str, ...){
+	// FUTURE: implement logging level
+	if(LOG){
 		va_list arg;
 		int done;
 		va_start(arg, str);
@@ -531,7 +566,7 @@ int main(int argc, char const* argv[]){
 	}
 	for(int i = 1; i < argc; i++){
 		if(strcmp(argv[i], "-v") == 0){
-			DEBUG = 1;
+			LOG = 1;
 			new_scope();
 			return yyparse();
 		}
